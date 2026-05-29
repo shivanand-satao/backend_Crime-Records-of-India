@@ -1,0 +1,2 @@
+docker run -d --name crime-redis -p 6379:6379 redis:7
+//run this always insted of usign the docker compose 
