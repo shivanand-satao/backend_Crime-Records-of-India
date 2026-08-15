@@ -1,314 +1,173 @@
 const redisClient = require('../../config/redis');
 const pool = require('../../config/db');
+const {
+    SYSTEM_TABLES,
+    isPlainObject,
+    getDatasetTableSchema,
+    validateRecord,
+    validateColumns
+} = require('../../services/datasetTableService');
 
+const MAX_PAGE_SIZE = 100;
 
+const parsePagination = (query = {}) => {
+    const page = Number(query.page ?? 1);
+    const limit = Number(query.limit ?? 20);
 
-// =====================================
-// GET ALL CRIME DATASET TABLES
-// =====================================
+    if (!Number.isInteger(page) || page < 1) {
+        const error = new Error('page must be a positive integer');
+        error.statusCode = 400;
+        throw error;
+    }
+
+    if (!Number.isInteger(limit) || limit < 1 || limit > MAX_PAGE_SIZE) {
+        const error = new Error(`limit must be between 1 and ${MAX_PAGE_SIZE}`);
+        error.statusCode = 400;
+        throw error;
+    }
+
+    return {
+        page,
+        limit,
+        offset: (page - 1) * limit
+    };
+};
+
+const sendDatasetError = (res, error, fallbackMessage) => {
+    if (error.statusCode) {
+        return res.status(error.statusCode).json({
+            success: false,
+            message: error.message
+        });
+    }
+
+    console.error(error);
+
+    return res.status(500).json({
+        success: false,
+        message: fallbackMessage
+    });
+};
 
 const getAllTables = async (req, res) => {
-
     try {
-
-        // =====================================
-        // CHECK REDIS CACHE
-        // =====================================
-
-        const cachedTables =
-            await redisClient.get('all_tables');
+        const cachedTables = await redisClient.get('all_tables');
 
         if (cachedTables) {
-
-            console.log(
-                'Serving tables from Redis cache'
-            );
-
-            return res.status(200).json(
-                JSON.parse(cachedTables)
-            );
+            return res.status(200).json(JSON.parse(cachedTables));
         }
 
-        console.log(
-            'Fetching tables from MySQL'
-        );
-
-        const excludedTables = [
-            'admins',
-            'users',
-            'refresh_tokens',
-            'user_settings',
-            'notifications',
-            'dataset_metadata',
-            'dataset_columns',
-            'views_log',
-            'search_logs',
-            'admin_modification_logs',
-            'response',
-            'api_request_logs',
-            'upload_history'
-        ];
-
-        const placeholders =
-            excludedTables.map(() => '?').join(',');
-
+        const excludedTables = [...SYSTEM_TABLES];
+        const placeholders = excludedTables.map(() => '?').join(',');
         const [tables] = await pool.query(
             `
             SELECT table_name
             FROM information_schema.tables
             WHERE table_schema = ?
+            AND table_type = 'BASE TABLE'
             AND table_name NOT IN (${placeholders})
+            ORDER BY table_name
             `,
-            [
-                process.env.DB_NAME,
-                ...excludedTables
-            ]
+            [process.env.DB_NAME, ...excludedTables]
         );
-
-        const formattedTables =
-            tables.map(
-                table => table.TABLE_NAME || table.table_name
-            );
-
-        // =====================================
-        // RESPONSE OBJECT
-        // =====================================
-
+        const formattedTables = tables.map(table => table.TABLE_NAME || table.table_name);
         const responseData = {
             success: true,
             totalTables: formattedTables.length,
             data: formattedTables
         };
 
-        // =====================================
-        // STORE IN REDIS
-        // =====================================
-
-        await redisClient.set(
-            'all_tables',
-            JSON.stringify(responseData),
-            {
-                EX: 1800
-            }
-        );
-
-        return res.status(200).json(
-            responseData
-        );
-
+        await redisClient.set('all_tables', JSON.stringify(responseData), { EX: 1800 });
+        return res.status(200).json(responseData);
     } catch (error) {
-
-        console.error(error);
-
-        return res.status(500).json({
-            success: false,
-            message: 'Failed to fetch tables'
-        });
+        return sendDatasetError(res, error, 'Failed to fetch tables');
     }
 };
 
-
-// =====================================
-// GET TABLE SCHEMA
-// =====================================
-
 const getTableSchema = async (req, res) => {
-
     try {
-
         const { table } = req.params;
-        
-// =====================================
-// CHECK REDIS CACHE
-// =====================================
 
-const cacheKey =
-    `schema_${table}`;
-
-const cachedSchema =
-    await redisClient.get(cacheKey);
-
-if (cachedSchema) {
-
-    console.log(
-        `Serving schema of ${table} from Redis cache`
-    );
-
-    return res.status(200).json(
-        JSON.parse(cachedSchema)
-    );
-}
-
-console.log(
-    `Fetching schema of ${table} from MySQL`
-);
-
-
-
-        const [columns] = await pool.query(
-            `
-            SELECT
-                COLUMN_NAME,
-                DATA_TYPE,
-                IS_NULLABLE
-            FROM information_schema.columns
-            WHERE table_schema = ?
-            AND table_name = ?
-            `,
-            [
-                process.env.DB_NAME,
-                table
-            ]
-        );
-
-        if (columns.length === 0) {
-
+        if (
+            typeof table !== 'string' ||
+            SYSTEM_TABLES.has(table.toLowerCase())
+        ) {
             return res.status(404).json({
                 success: false,
-                message: 'Table not found'
+                message: 'Dataset table not found'
             });
         }
 
-        
-// =====================================
-// RESPONSE OBJECT
-// =====================================
+        const cacheKey = `schema_${table}`;
+        const cachedSchema = await redisClient.get(cacheKey);
 
-const responseData = {
-    success: true,
-    table,
-    totalColumns: columns.length,
-    columns
-};
+        if (cachedSchema) {
+            return res.status(200).json(JSON.parse(cachedSchema));
+        }
 
-// =====================================
-// STORE IN REDIS
-// =====================================
+        const schema = await getDatasetTableSchema(pool, table);
 
-await redisClient.set(
-    cacheKey,
-    JSON.stringify(responseData),
-    {
-        EX: 3600
-    }
-);
+        if (!schema) {
+            return res.status(404).json({
+                success: false,
+                message: 'Dataset table not found'
+            });
+        }
 
-return res.status(200).json(
-    responseData
-);
+        const responseData = {
+            success: true,
+            table,
+            totalColumns: schema.columns.length,
+            columns: schema.columns.map(column => ({
+                COLUMN_NAME: column.COLUMN_NAME,
+                DATA_TYPE: column.DATA_TYPE,
+                IS_NULLABLE: column.IS_NULLABLE
+            }))
+        };
 
-
+        await redisClient.set(cacheKey, JSON.stringify(responseData), { EX: 3600 });
+        return res.status(200).json(responseData);
     } catch (error) {
-
-        console.error(error);
-
-        return res.status(500).json({
-            success: false,
-            message: 'Failed to fetch schema'
-        });
+        return sendDatasetError(res, error, 'Failed to fetch schema');
     }
 };
-
-
-// =====================================
-// GET TABLE DATA WITH PAGINATION
-// =====================================
 
 const getTableData = async (req, res) => {
-
     try {
-
         const { table } = req.params;
+        const { page, limit, offset } = parsePagination(req.query);
+        const schema = await getDatasetTableSchema(pool, table);
 
-        let {
-            page = 1,
-            limit = 20
-        } = req.query;
+        if (!schema) {
+            return res.status(404).json({
+                success: false,
+                message: 'Dataset table not found'
+            });
+        }
 
-        page = parseInt(page);
-        limit = parseInt(limit);
-
-        const offset =
-            (page - 1) * limit;
-
-        // =====================================
-        // LOG TABLE VIEW
-        // =====================================
+        const tableIdentifier = pool.escapeId(table);
+        const [countResult] = await pool.query(
+            `SELECT COUNT(*) AS total FROM ${tableIdentifier}`
+        );
+        const totalRecords = Number(countResult[0].total);
+        const [data] = await pool.query(
+            `SELECT * FROM ${tableIdentifier} LIMIT ? OFFSET ?`,
+            [limit, offset]
+        );
 
         await pool.query(
             `
             INSERT INTO views_log
-            (
-                user_id,
-                email,
-                username,
-                table_viewed,
-                ip_address
-            )
-            VALUES (?, ?, ?, ?, ?)
+            (user_id, email, username, table_viewed, query_params, ip_address)
+            VALUES (?, ?, ?, ?, ?, ?)
             `,
             [
                 req.user.id,
                 req.user.email || null,
                 req.user.username,
                 table,
+                JSON.stringify({ page, limit }),
                 req.ip
-            ]
-        );
-
-        // =====================================
-        // CHECK TABLE EXISTS
-        // =====================================
-
-        const [tableCheck] = await pool.query(
-            `
-            SELECT table_name
-            FROM information_schema.tables
-            WHERE table_schema = ?
-            AND table_name = ?
-            `,
-            [
-                process.env.DB_NAME,
-                table
-            ]
-        );
-
-        if (tableCheck.length === 0) {
-
-            return res.status(404).json({
-                success: false,
-                message: 'Table not found'
-            });
-        }
-
-        // =====================================
-        // GET TOTAL RECORDS
-        // =====================================
-
-        const [countResult] = await pool.query(
-            `
-            SELECT COUNT(*) AS total
-            FROM \`${table}\`
-            `
-        );
-
-        const totalRecords =
-            countResult[0].total;
-
-        // =====================================
-        // GET DATA
-        // =====================================
-
-        const [data] = await pool.query(
-            `
-            SELECT *
-            FROM \`${table}\`
-            LIMIT ?
-            OFFSET ?
-            `,
-            [
-                limit,
-                offset
             ]
         );
 
@@ -318,266 +177,137 @@ const getTableData = async (req, res) => {
             page,
             limit,
             totalRecords,
-            totalPages:
-                Math.ceil(totalRecords / limit),
+            totalPages: Math.ceil(totalRecords / limit),
             data
         });
-
     } catch (error) {
-
-        console.error(error);
-
-        return res.status(500).json({
-            success: false,
-            message: 'Failed to fetch table data'
-        });
+        return sendDatasetError(res, error, 'Failed to fetch table data');
     }
 };
 
-
-// =====================================
-// GET FILTER OPTIONS
-// =====================================
-
 const getFilterOptions = async (req, res) => {
-
     try {
+        const { table, column } = req.params;
+        const schema = await getDatasetTableSchema(pool, table);
 
-        const {
-            table,
-            column
-        } = req.params;
-
-        // =====================================
-        // CHECK TABLE EXISTS
-        // =====================================
-
-        const [tableCheck] = await pool.query(
-            `
-            SELECT table_name
-            FROM information_schema.tables
-            WHERE table_schema = ?
-            AND table_name = ?
-            `,
-            [
-                process.env.DB_NAME,
-                table
-            ]
-        );
-
-        if (tableCheck.length === 0) {
-
+        if (!schema) {
             return res.status(404).json({
                 success: false,
-                message: 'Table not found'
+                message: 'Dataset table not found'
             });
         }
 
-        // =====================================
-        // CHECK COLUMN EXISTS
-        // =====================================
-
-        const [columnCheck] = await pool.query(
-            `
-            SELECT COLUMN_NAME
-            FROM information_schema.columns
-            WHERE table_schema = ?
-            AND table_name = ?
-            AND column_name = ?
-            `,
-            [
-                process.env.DB_NAME,
-                table,
-                column
-            ]
-        );
-
-        if (columnCheck.length === 0) {
-
+        if (!schema.columnNames.has(column)) {
             return res.status(404).json({
                 success: false,
                 message: 'Column not found'
             });
         }
 
-        // =====================================
-        // GET DISTINCT VALUES
-        // =====================================
-
+        const tableIdentifier = pool.escapeId(table);
+        const columnIdentifier = pool.escapeId(column);
         const [options] = await pool.query(
             `
-            SELECT DISTINCT \`${column}\`
-            FROM \`${table}\`
-            WHERE \`${column}\` IS NOT NULL
-            ORDER BY \`${column}\` ASC
+            SELECT DISTINCT ${columnIdentifier}
+            FROM ${tableIdentifier}
+            WHERE ${columnIdentifier} IS NOT NULL
+            ORDER BY ${columnIdentifier} ASC
             `
         );
-
-        const formattedOptions =
-            options.map(
-                item => item[column]
-            );
+        const formattedOptions = options.map(item => item[column]);
 
         return res.status(200).json({
             success: true,
             table,
             column,
-            totalOptions:
-                formattedOptions.length,
+            totalOptions: formattedOptions.length,
             data: formattedOptions
         });
-
     } catch (error) {
-
-        console.error(error);
-
-        return res.status(500).json({
-            success: false,
-            message: 'Failed to fetch filter options'
-        });
+        return sendDatasetError(res, error, 'Failed to fetch filter options');
     }
 };
 
-
-// =====================================
-// DYNAMIC SEARCH + FILTER API
-// =====================================
-
 const searchTableData = async (req, res) => {
-
     try {
-
         const { table } = req.params;
-
-        let {
+        const {
             filters = {},
-            page = 1,
-            limit = 20,
             sortBy = null,
             sortOrder = 'ASC'
-        } = req.body;
+        } = req.body || {};
+        const { page, limit, offset } = parsePagination(req.body || {});
+        const schema = await getDatasetTableSchema(pool, table);
 
-        page = parseInt(page);
-        limit = parseInt(limit);
-
-        const offset =
-            (page - 1) * limit;
-
-        // =====================================
-        // CHECK TABLE EXISTS
-        // =====================================
-
-        const [tableCheck] = await pool.query(
-            `
-            SELECT table_name
-            FROM information_schema.tables
-            WHERE table_schema = ?
-            AND table_name = ?
-            `,
-            [
-                process.env.DB_NAME,
-                table
-            ]
-        );
-
-        if (tableCheck.length === 0) {
-
+        if (!schema) {
             return res.status(404).json({
                 success: false,
-                message: 'Table not found'
+                message: 'Dataset table not found'
             });
         }
 
-        // =====================================
-        // BUILD WHERE CONDITIONS
-        // =====================================
-
-        let whereClauses = [];
-        let queryValues = [];
-
-        for (const key in filters) {
-
-            whereClauses.push(
-                `\`${key}\` = ?`
-            );
-
-            queryValues.push(filters[key]);
+        if (!isPlainObject(filters)) {
+            return res.status(400).json({
+                success: false,
+                message: 'filters must be an object'
+            });
         }
 
-        const whereSQL =
-            whereClauses.length > 0
-                ? `WHERE ${whereClauses.join(' AND ')}`
-                : '';
-
-        // =====================================
-        // SORTING
-        // =====================================
-
-        let sortSQL = '';
-
-        if (sortBy) {
-
-            sortSQL =
-                `ORDER BY \`${sortBy}\` ${sortOrder === 'DESC' ? 'DESC' : 'ASC'}`;
+        if (Object.keys(filters).length > 0) {
+            validateRecord(filters, 'filters');
+            validateColumns(schema, filters, 'filter');
         }
 
-        // =====================================
-        // TOTAL COUNT
-        // =====================================
+        if (sortBy !== null) {
+            if (typeof sortBy !== 'string' || !schema.columnNames.has(sortBy)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'sortBy must be a column in the selected dataset'
+                });
+            }
+        }
 
-        const countQuery = `
-            SELECT COUNT(*) AS total
-            FROM \`${table}\`
-            ${whereSQL}
-        `;
+        const tableIdentifier = pool.escapeId(table);
+        const clauses = [];
+        const values = [];
 
-        const [countResult] =
-            await pool.query(
-                countQuery,
-                queryValues
-            );
+        for (const [column, value] of Object.entries(filters)) {
+            const columnIdentifier = pool.escapeId(column);
 
-        const totalRecords =
-            countResult[0].total;
+            if (value === null) {
+                clauses.push(`${columnIdentifier} IS NULL`);
+            } else {
+                clauses.push(`${columnIdentifier} = ?`);
+                values.push(value);
+            }
+        }
 
-        // =====================================
-        // MAIN DATA QUERY
-        // =====================================
-
-        const dataQuery = `
-            SELECT *
-            FROM \`${table}\`
-            ${whereSQL}
-            ${sortSQL}
-            LIMIT ?
-            OFFSET ?
-        `;
-
-        const [data] = await pool.query(
-            dataQuery,
-            [
-                ...queryValues,
-                limit,
-                offset
-            ]
+        const whereSql = clauses.length > 0
+            ? `WHERE ${clauses.join(' AND ')}`
+            : '';
+        const sortSql = sortBy
+            ? `ORDER BY ${pool.escapeId(sortBy)} ${String(sortOrder).toUpperCase() === 'DESC' ? 'DESC' : 'ASC'}`
+            : '';
+        const [countResult] = await pool.query(
+            `SELECT COUNT(*) AS total FROM ${tableIdentifier} ${whereSql}`,
+            values
         );
-
-        // =====================================
-        // LOG SEARCH
-        // =====================================
+        const totalRecords = Number(countResult[0].total);
+        const [data] = await pool.query(
+            `
+            SELECT *
+            FROM ${tableIdentifier}
+            ${whereSql}
+            ${sortSql}
+            LIMIT ? OFFSET ?
+            `,
+            [...values, limit, offset]
+        );
 
         await pool.query(
             `
             INSERT INTO search_logs
-            (
-                user_id,
-                username,
-                table_name,
-                search_filters,
-                result_count,
-                user_ip,
-                status
-            )
+            (user_id, username, table_name, search_filters, result_count, user_ip, status)
             VALUES (?, ?, ?, ?, ?, ?, ?)
             `,
             [
@@ -598,22 +328,13 @@ const searchTableData = async (req, res) => {
             page,
             limit,
             totalRecords,
-            totalPages:
-                Math.ceil(totalRecords / limit),
+            totalPages: Math.ceil(totalRecords / limit),
             data
         });
-
     } catch (error) {
-
-        console.error(error);
-
-        return res.status(500).json({
-            success: false,
-            message: 'Failed to search table data'
-        });
+        return sendDatasetError(res, error, 'Failed to search table data');
     }
 };
-
 
 module.exports = {
     getAllTables,
@@ -622,4 +343,3 @@ module.exports = {
     getFilterOptions,
     searchTableData
 };
-

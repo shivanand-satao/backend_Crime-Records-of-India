@@ -4,7 +4,7 @@ require('dotenv').config();
 const app = require('./app');
 const pool = require('./config/db');
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 const startServer = async () => {
     try {

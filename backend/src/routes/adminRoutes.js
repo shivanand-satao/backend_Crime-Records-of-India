@@ -10,8 +10,10 @@ const adminMiddleware =
 require('../middleware/adminMiddleware');
 
 const {
-    updateTableRow,
-    deleteTableRows
+    updateTableRows,
+    deleteTableRows,
+    getAuditLogs,
+    getAuditLogById
 } = require('../controllers/admin/adminController');
 
 
@@ -24,7 +26,7 @@ router.put(
     '/admin/table/:table/update',
     authMiddleware,
     adminMiddleware,
-    updateTableRow
+    updateTableRows
 );
 
 
@@ -38,6 +40,25 @@ router.delete(
     authMiddleware,
     adminMiddleware,
     deleteTableRows
+);
+
+
+// =====================================
+// AUDIT LOGS
+// =====================================
+
+router.get(
+    '/admin/audit-logs',
+    authMiddleware,
+    adminMiddleware,
+    getAuditLogs
+);
+
+router.get(
+    '/admin/audit-logs/:id',
+    authMiddleware,
+    adminMiddleware,
+    getAuditLogById
 );
 
 

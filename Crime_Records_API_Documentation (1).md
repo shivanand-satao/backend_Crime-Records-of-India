@@ -1,62 +1,212 @@
-# Page 1
+# Crime Records of India API Documentation
 
-Crime Records of India Backend API Documentation Enterprise Backend
-Documentation for Frontend Integration
+Backend API reference for frontend integration.
 
-------------------------------------------------------------------------
+## Base URL
 
-# Page 2
+Local development: `http://localhost:3000/api`
 
-1.  Project Overview Crime Records of India is a scalable backend
-    platform built using Node.js, Express.js, MySQL, Redis, Docker, and
-    JWT Authentication. The backend provides dynamic dataset APIs,
-    analytics APIs, governance APIs, admin audit logging, Redis caching,
-    and authentication flows.
-2.  Base URL Environment Base URL Local Development
-    http://localhost:3000/api
-3.  Authentication All protected APIs require JWT Authentication.
-    Frontend must send access token in Authorization header.
-    Authorization: Bearer ACCESS_TOKEN 3.1 User Login API Endpoint: POST
-    /auth/login Request Body { "email": "test@test.com", "password":
-    "User@123" } Sample Response { "success": true, "accessToken":
-    "JWT_ACCESS_TOKEN", "refreshToken": "JWT_REFRESH_TOKEN", "user": {
-    "id": 1, "username": "testuser", "email": "test@test.com" } } 3.2
-    Admin Login API Endpoint: POST /auth/login-admin { "username":
-    "superadmin", "password": "Admin@123" }
-4.  Dataset APIs API Method Description /tables GET Get all available
-    dataset tables /tables/:table/schema GET Get schema of dataset table
-    /data/:table GET Get paginated table data /data/:table/search GET
-    Search dataset records /data/:table/filter-options/:column GET Get
-    distinct filter options 4.1 Get Table Data Endpoint: GET
-    /data/:table?page=1&limit;=10 Example
+All protected endpoints require:
 
-------------------------------------------------------------------------
+```text
+Authorization: Bearer ACCESS_TOKEN
+```
 
-# Page 3
+## Authentication
 
-GET /data/auto_theft?page=1&limit=10 Sample Response { "success": true,
-"table": "auto_theft", "page": 1, "limit": 10, "data": \[ { "Area_name":
-"Delhi", "Year": 2001, "Auto_Theft_Stolen": 3185 } \] } 5. Analytics
-APIs Endpoint: GET /analytics/overview Provides aggregated analytics for
-dashboard and landing page. { "success": true, "totalUsers": 20,
-"totalAdmins": 1, "totalTables": 17, "totalViews": 102, "totalSearches":
-48 } 6. Admin Governance APIs API Method Purpose
-/admin/table/:table/update PUT Update dataset rows
-/admin/table/:table/delete DELETE Delete dataset rows Sample Update
-Request { "conditions": { "Area_name": "Delhi", "Year": 2001 },
-"newData": { "Auto_Theft_Stolen": 9999 } } 7. Redis Cache Layer API
-Redis Cached TTL /tables Yes 30 Minutes /tables/:table/schema Yes 1 Hour
-/analytics/overview Yes 5 Minutes 8. HTTP Status Codes Code Meaning 200
-Success 201 Created Successfully 400 Bad Request
+### Register a user
 
-------------------------------------------------------------------------
+`POST /auth/register`
 
-# Page 4
+```json
+{
+  "username": "testuser",
+  "password": "User@123",
+  "email": "test@test.com",
+  "full_name": "Test User",
+  "department": "Analysis"
+}
+```
 
-401 Unauthorized 403 Forbidden 404 Resource Not Found 500 Internal
-Server Error 9. Frontend Integration Notes  Store accessToken securely
-after login.  Send Authorization header in protected APIs.  Use
-pagination for large dataset tables.  Schema APIs should be used for
-dynamic table rendering.  Analytics APIs are Redis cached for
-performance.  Admin APIs require admin JWT token. Crime Records of
-India - Backend Documentation
+### User login
+
+`POST /auth/login-user`
+
+```json
+{
+  "username": "testuser",
+  "password": "User@123"
+}
+```
+
+Returns `accessToken`, `refreshToken`, and the user profile.
+
+### Admin login
+
+`POST /auth/login-admin`
+
+```json
+{
+  "username": "superadmin",
+  "password": "Admin@123"
+}
+```
+
+Only admins with an `active` status can log in. The token contains the admin
+role: `superadmin`, `admin`, or `moderator`.
+
+### Other authentication endpoints
+
+- `GET /auth/profile` - return the authenticated token profile.
+- `POST /auth/refresh-token` - exchange a valid refresh token for an access token.
+- `POST /auth/logout` - revoke a refresh token.
+
+## Dataset APIs
+
+Dataset routes expose only dataset tables. Authentication and governance tables
+are never available through these routes, even when a table name is supplied
+directly.
+
+- `GET /tables` - list available dataset tables.
+- `GET /tables/:table/schema` - return column names, data types, and nullability.
+- `GET /data/:table?page=1&limit=20` - return paginated rows. `limit` is 1-100.
+- `GET /data/:table/filter-options/:column` - return distinct non-null values.
+- `POST /data/:table/search` - filter, sort, and paginate rows.
+
+Search request example:
+
+```json
+{
+  "filters": {
+    "Area_name": "Delhi",
+    "Year": 2001
+  },
+  "page": 1,
+  "limit": 20,
+  "sortBy": "Year",
+  "sortOrder": "DESC"
+}
+```
+
+All filter and sort columns are validated against the selected table schema.
+Dataset views and searches are recorded in `views_log` and `search_logs`.
+
+## Analytics API
+
+`GET /analytics/overview`
+
+Returns user/admin counts, dataset table count, view/search totals, the most
+viewed table, and logins during the previous seven days. The response is cached
+in Redis for five minutes.
+
+## Admin Governance APIs
+
+Admin governance routes require a valid admin JWT and the `superadmin`, `admin`,
+or `moderator` role.
+
+### Update dataset rows
+
+`PUT /admin/table/:table/update`
+
+```json
+{
+  "conditions": {
+    "Area_name": "Delhi",
+    "Year": 2001
+  },
+  "newData": {
+    "Auto_Theft_Stolen": 9999
+  }
+}
+```
+
+`updateData` is accepted as a compatibility alias for `newData`, but both names
+must not be sent in the same request. Conditions and update columns must exist
+in the selected dataset table. `null` values are supported in conditions and
+updates.
+
+The endpoint locks matching rows, updates them, writes the audit record, and
+commits both actions in one database transaction. If more than one row matches,
+the request returns `409` until the caller explicitly resubmits with:
+
+```json
+{
+  "conditions": { "Area_name": "Delhi" },
+  "newData": { "Auto_Theft_Stolen": 9999 },
+  "confirmMultiple": true
+}
+```
+
+### Delete dataset rows
+
+`DELETE /admin/table/:table/delete`
+
+```json
+{
+  "conditions": {
+    "Area_name": "Delhi",
+    "Year": 2001
+  }
+}
+```
+
+The same `confirmMultiple` rule applies. Deletion is transactional and the
+complete pre-delete rows are stored in the audit log.
+
+### Read audit logs
+
+- `GET /admin/audit-logs?page=1&limit=20` - list audit records, newest first.
+- `GET /admin/audit-logs/:id` - return one complete audit record.
+
+Supported list filters:
+
+- `tableName` (or `table`)
+- `action=INSERT|UPDATE|DELETE`
+- `adminId`
+- `from` and `to` as ISO dates (`YYYY-MM-DD` or a full ISO timestamp)
+
+Each audit record contains the admin id and username, table, row identifier,
+action type, old JSON snapshot, new JSON snapshot, changed columns, IP address,
+and creation timestamp. Audit writes are part of the same transaction as the
+dataset mutation, so a failed audit insert rolls back the data change.
+
+## Redis cache
+
+| Key | Endpoint | TTL |
+| --- | --- | --- |
+| `all_tables` | `GET /tables` | 30 minutes |
+| `schema_{table}` | `GET /tables/:table/schema` | 1 hour |
+| `analytics_overview` | `GET /analytics/overview` | 5 minutes |
+
+## HTTP status codes
+
+- `200` - successful request
+- `201` - resource created
+- `400` - invalid request, column, value, or filter
+- `401` - missing or invalid access token
+- `403` - authenticated user lacks admin access or admin is inactive
+- `404` - dataset table, column, or audit log not found
+- `409` - multiple matching rows require explicit confirmation
+- `429` - rate limit exceeded when the limiter is enabled
+- `500` - unexpected server error
+
+## Frontend integration notes
+
+- Store access and refresh tokens securely.
+- Send the access token in the `Authorization` header.
+- Use schema responses to render dynamic dataset columns.
+- Use pagination for every dataset and audit-log list.
+- Treat a `409` mutation response as a confirmation step before resubmitting with
+  `confirmMultiple: true`.
+- Show the audit-log detail response when an administrator reviews a change.
+
+## Local development
+
+```text
+cd backend
+npm install
+npm run dev
+```
+
+Redis can be started with `docker compose up -d` or the command in
+`docker_cmd.txt`.

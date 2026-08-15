@@ -1,207 +1,302 @@
 %PDF-1.4
-%“Œ‹ž ReportLab Generated PDF document http://www.reportlab.com
+%ÿÿÿÿ
 1 0 obj
-<<
-/F1 2 0 R /F2 3 0 R
->>
+<< /Type /Catalog /Pages 2 0 R >>
 endobj
 2 0 obj
-<<
-/BaseFont /Helvetica /Encoding /WinAnsiEncoding /Name /F1 /Subtype /Type1 /Type /Font
->>
+<< /Type /Pages /Count 5 /Kids [7 0 R 9 0 R 11 0 R 13 0 R 15 0 R] >>
 endobj
 3 0 obj
-<<
-/BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding /Name /F2 /Subtype /Type1 /Type /Font
->>
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
 endobj
 4 0 obj
-<<
-/Contents 15 0 R /MediaBox [ 0 0 595.2756 841.8898 ] /Parent 14 0 R /Resources <<
-/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
->> /Rotate 0 /Trans <<
-
->> 
-  /Type /Page
->>
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
 endobj
 5 0 obj
-<<
-/Contents 16 0 R /MediaBox [ 0 0 595.2756 841.8898 ] /Parent 14 0 R /Resources <<
-/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
->> /Rotate 0 /Trans <<
-
->> 
-  /Type /Page
->>
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier >>
 endobj
 6 0 obj
-<<
-/Contents 17 0 R /MediaBox [ 0 0 595.2756 841.8898 ] /Parent 14 0 R /Resources <<
-/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
->> /Rotate 0 /Trans <<
-
->> 
-  /Type /Page
->>
+<< /Length 3274 >>
+stream
+BT /F2 21 Tf 1 0 0 1 48 791.89 Tm (Crime Records of India - Development) Tj ET
+BT /F2 21 Tf 1 0 0 1 48 755.89 Tm (Context and Progress Report) Tj ET
+0.20 0.42 0.56 RG 1.2 w 48 723.89 m 547.28 723.89 l S 0 G
+BT /F1 10.5 Tf 1 0 0 1 48 712.89 Tm (Last updated: August 15, 2026) Tj ET
+BT /F2 15 Tf 1 0 0 1 48 685.89 Tm (Project overview) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 660.89 Tm (Crime Records of India is a dynamic crime-data analytics and governance backend built) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 646.89 Tm (with Node.js, Express.js, MySQL, Redis, Docker, and JWT authentication.) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 627.89 Tm (The system currently supports:) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 608.89 Tm (- User and administrator authentication) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 593.89 Tm (- Dynamic dataset discovery and schema APIs) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 578.89 Tm (- Paginated dataset browsing, filtering, sorting, and search) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 563.89 Tm (- Analytics and activity tracking) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 548.89 Tm (- Administrator dataset governance) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 533.89 Tm (- Transactional audit logging) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 518.89 Tm (- Redis metadata and analytics caching) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 503.89 Tm (- Role-based access control) Tj ET
+BT /F2 15 Tf 1 0 0 1 48 480.89 Tm (Technology stack) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 455.89 Tm (- Backend: Node.js and Express.js) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 440.89 Tm (- Database: MySQL with mysql2/promise) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 425.89 Tm (- Cache: Redis 7) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 410.89 Tm (- Authentication: JWT access and refresh tokens, bcrypt password hashes) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 395.89 Tm (- Infrastructure: Docker Compose for Redis; backend and MySQL run locally) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 380.89 Tm (- Testing: Node.js built-in test runner) Tj ET
+BT /F2 15 Tf 1 0 0 1 48 357.89 Tm (Authentication system) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 332.89 Tm (Implemented:) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 313.89 Tm (- User registration) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 298.89 Tm (- User login using username and password) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 283.89 Tm (- Admin login using username and password) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 268.89 Tm (- JWT access and refresh token generation) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 253.89 Tm (- Refresh-token persistence and revocation) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 238.89 Tm (- Protected profile API) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 223.89 Tm (- Role-based administrator middleware) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 208.89 Tm (- User and administrator last_login updates after successful authentication) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 193.89 Tm (- Rejection of inactive or suspended administrator accounts) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 178.89 Tm (Administrator roles accepted by governance routes:) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 159.89 Tm (- superadmin) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 144.89 Tm (- admin) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 129.89 Tm (- moderator) Tj ET
+BT /F2 15 Tf 1 0 0 1 48 106.88999999999999 Tm (Dataset engine) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 81.88999999999999 Tm (Implemented APIs:) Tj ET
+BT /F1 8 Tf 1 0 0 1 505.28 24 Tm (Page 1) Tj ET
+endstream
 endobj
 7 0 obj
-<<
-/Contents 18 0 R /MediaBox [ 0 0 595.2756 841.8898 ] /Parent 14 0 R /Resources <<
-/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
->> /Rotate 0 /Trans <<
-
->> 
-  /Type /Page
->>
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 6 0 R >>
 endobj
 8 0 obj
-<<
-/Contents 19 0 R /MediaBox [ 0 0 595.2756 841.8898 ] /Parent 14 0 R /Resources <<
-/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
->> /Rotate 0 /Trans <<
-
->> 
-  /Type /Page
->>
+<< /Length 3860 >>
+stream
+BT /F1 10.5 Tf 1 0 0 1 58 791.89 Tm (- GET /api/tables) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 776.89 Tm (- GET /api/tables/:table/schema) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 761.89 Tm (- GET /api/data/:table) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 746.89 Tm (- GET /api/data/:table/filter-options/:column) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 731.89 Tm (- POST /api/data/:table/search) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 716.89 Tm (Current behavior:) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 697.89 Tm (- Dynamic discovery of dataset tables) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 682.89 Tm (- Exact schema discovery through information_schema) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 667.89 Tm (- Pagination with a maximum page size of 100) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 652.89 Tm (- Exact-match filters and null-value filtering) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 637.89 Tm (- Validated dynamic sorting) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 622.89 Tm (- View logging in views_log) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 607.89 Tm (- Search logging in search_logs) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 592.89 Tm (- Redis caching for table and schema metadata) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 577.89 Tm (- System tables blocked from every dataset route, including direct URL access) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 562.89 Tm (- Dynamic column names validated before being used as SQL identifiers) Tj ET
+BT /F2 15 Tf 1 0 0 1 48 539.89 Tm (Admin governance system) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 514.89 Tm (Implemented APIs:) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 495.89 Tm (- PUT /api/admin/table/:table/update) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 480.89 Tm (- DELETE /api/admin/table/:table/delete) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 465.89 Tm (- GET /api/admin/audit-logs) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 450.89 Tm (- GET /api/admin/audit-logs/:id) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 435.89 Tm (Mutation behavior:) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 416.89 Tm (- Only dataset tables can be modified; authentication, governance, analytics,) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 401.89 Tm (metadata, notification, and upload tables are protected.) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 382.89 Tm (- Condition and update fields must match real columns in the selected dataset.) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 367.89 Tm (- SQL identifiers are escaped after schema validation.) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 352.89 Tm (- Null conditions use SQL IS NULL semantics.) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 337.89 Tm (- Matching rows are locked with SELECT ... FOR UPDATE.) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 322.89 Tm (- Dataset mutation and audit insertion run in the same MySQL transaction.) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 307.89 Tm (- If audit logging fails, the dataset change is rolled back.) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 292.89 Tm (- A condition matching multiple rows returns 409 until the caller sends) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 277.89 Tm (confirmMultiple: true.) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 258.89 Tm (- Update requests use newData; the existing updateData name remains a) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 243.89 Tm (compatibility alias.) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 224.89 Tm (Audit records capture:) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 205.89 Tm (- Admin id and username) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 190.89 Tm (- Dataset table name) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 175.89 Tm (- Row identifier or condition summary) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 160.89 Tm (- UPDATE or DELETE action) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 145.89 Tm (- Complete old row snapshots) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 130.89 Tm (- Complete expected new row snapshots for updates) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 115.88999999999999 Tm (- Changed or deleted columns) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 100.88999999999999 Tm (- Admin IP address) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 85.88999999999999 Tm (- Creation timestamp) Tj ET
+BT /F1 8 Tf 1 0 0 1 505.28 24 Tm (Page 2) Tj ET
+endstream
 endobj
 9 0 obj
-<<
-/Contents 20 0 R /MediaBox [ 0 0 595.2756 841.8898 ] /Parent 14 0 R /Resources <<
-/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
->> /Rotate 0 /Trans <<
-
->> 
-  /Type /Page
->>
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 8 0 R >>
 endobj
 10 0 obj
-<<
-/Contents 21 0 R /MediaBox [ 0 0 595.2756 841.8898 ] /Parent 14 0 R /Resources <<
-/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
->> /Rotate 0 /Trans <<
-
->> 
-  /Type /Page
->>
+<< /Length 3103 >>
+stream
+BT /F1 10.5 Tf 1 0 0 1 48 791.89 Tm (Audit-log list filters:) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 772.89 Tm (- Dataset table) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 757.89 Tm (- Action type) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 742.89 Tm (- Admin id) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 727.89 Tm (- Start and end date) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 712.89 Tm (- Pagination) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 697.89 Tm (The live admin_modification_logs table already contains the required JSON and tracking) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 683.89 Tm (columns, so no database migration was required for this implementation.) Tj ET
+BT /F2 15 Tf 1 0 0 1 48 656.89 Tm (Analytics system) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 631.89 Tm (Implemented:) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 612.89 Tm (- Total user count) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 597.89 Tm (- Total administrator count) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 582.89 Tm (- Total dataset table count) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 567.89 Tm (- Total view count) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 552.89 Tm (- Total search count) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 537.89 Tm (- Most viewed dataset) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 522.89 Tm (- User logins during the previous seven days) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 507.89 Tm (API:) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 488.89 Tm (- GET /api/analytics/overview) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 473.89 Tm (Cache TTL: 300 seconds.) Tj ET
+BT /F2 15 Tf 1 0 0 1 48 446.89 Tm (Redis cache layer) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 421.89 Tm (Current cache keys:) Tj ET
+0.95 g 44 399.89 507.28 12 re f 0 g
+BT /F2 8.5 Tf 1 0 0 1 48 402.89 Tm (Cache key | Purpose | TTL) Tj ET
+BT /F3 8 Tf 1 0 0 1 48 390.89 Tm (all_tables | Dataset table list | 1800 seconds) Tj ET
+BT /F3 8 Tf 1 0 0 1 48 378.89 Tm (schema_{table} | Dataset schema | 3600 seconds) Tj ET
+BT /F3 8 Tf 1 0 0 1 48 366.89 Tm (analytics_overview | Analytics overview | 300 seconds) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 348.89 Tm (Only Redis runs in Docker. The backend and MySQL run locally.) Tj ET
+BT /F2 15 Tf 1 0 0 1 48 321.89 Tm (Current database tables) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 296.89 Tm (Core and platform tables:) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 277.89 Tm (- users) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 262.89 Tm (- admins) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 247.89 Tm (- refresh_tokens) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 232.89 Tm (- user_settings) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 217.89 Tm (- notifications) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 202.89 Tm (- dataset_metadata) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 187.89 Tm (- dataset_columns) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 172.89 Tm (- views_log) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 157.89 Tm (- search_logs) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 142.89 Tm (- admin_modification_logs) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 127.88999999999999 Tm (- api_request_logs) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 112.88999999999999 Tm (- upload_history) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 97.88999999999999 Tm (- response) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 82.88999999999999 Tm (Dataset tables found in the live database:) Tj ET
+BT /F1 8 Tf 1 0 0 1 505.28 24 Tm (Page 3) Tj ET
+endstream
 endobj
 11 0 obj
-<<
-/Contents 22 0 R /MediaBox [ 0 0 595.2756 841.8898 ] /Parent 14 0 R /Resources <<
-/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
->> /Rotate 0 /Trans <<
-
->> 
-  /Type /Page
->>
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 10 0 R >>
 endobj
 12 0 obj
-<<
-/PageMode /UseNone /Pages 14 0 R /Type /Catalog
->>
+<< /Length 3569 >>
+stream
+BT /F1 10.5 Tf 1 0 0 1 58 791.89 Tm (- auto_theft) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 776.89 Tm (- cases_under_crime_against_women) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 761.89 Tm (- ch_not_murder_victim_age_sex) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 746.89 Tm (- complaints_against_police) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 731.89 Tm (- custodial_death_during_hospitalization_or_treatment) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 716.89 Tm (- custodial_death_others) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 701.89 Tm (- custodial_death_person_not_remanded) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 686.89 Tm (- custodial_death_person_remanded) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 671.89 Tm (- human_rights_violation_by_police) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 656.89 Tm (- murder_victim_age_sex) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 641.89 Tm (- period_of_trials_by_courts) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 626.89 Tm (- police_housing) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 611.89 Tm (- property_stolen_and_recovered) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 596.89 Tm (- serious_fraud) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 581.89 Tm (- specific_purpose_of_kidnapping_and_abduction) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 566.89 Tm (- trial_of_violent_crimes_by_courts) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 551.89 Tm (- victims_of_rape) Tj ET
+BT /F2 15 Tf 1 0 0 1 48 528.89 Tm (Security behavior) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 503.89 Tm (Implemented:) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 484.89 Tm (- Helmet headers) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 469.89 Tm (- CORS middleware) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 454.89 Tm (- JWT authentication) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 439.89 Tm (- Admin role authorization) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 424.89 Tm (- Dataset/system-table separation) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 409.89 Tm (- Dynamic column allow-listing) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 394.89 Tm (- Parameterized values in dynamic SQL) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 379.89 Tm (- Transactional audit logging) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 364.89 Tm (- Explicit bulk-mutation confirmation) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 349.89 Tm (- Generic server errors without returning raw SQL details) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 334.89 Tm (The in-memory rate-limiter middleware exists but is not yet mounted globally.) Tj ET
+BT /F2 15 Tf 1 0 0 1 48 307.89 Tm (Verification completed) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 282.89 Tm (- npm test passes all dataset-table safety tests.) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 267.89 Tm (- JavaScript syntax checks pass for changed source files.) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 252.89 Tm (- Live MySQL schema discovery succeeds.) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 237.89 Tm (- A live update plus audit insert was executed inside a transaction and rolled) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 222.89 Tm (back successfully, leaving no verification data behind.) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 203.89 Tm (- The live check covered the Auto_Theft_Coordinated/Traced column to verify) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 188.89 Tm (safe handling of unusual identifier characters.) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 169.89 Tm (- System-table guards were verified for lowercase and uppercase direct access.) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 154.89 Tm (- Audit-log list and detail queries were verified against existing audit data.) Tj ET
+BT /F2 15 Tf 1 0 0 1 48 131.89 Tm (Local development commands) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 106.88999999999999 Tm (Backend:) Tj ET
+0.95 g 48 80.88999999999999 507.28 12 re f 0 g
+BT /F3 8.5 Tf 1 0 0 1 52 83.88999999999999 Tm (cd backend) Tj ET
+BT /F1 8 Tf 1 0 0 1 505.28 24 Tm (Page 4) Tj ET
+endstream
 endobj
 13 0 obj
-<<
-/Author (\(anonymous\)) /CreationDate (D:20260528203002+00'00') /Creator (\(unspecified\)) /Keywords () /ModDate (D:20260528203002+00'00') /Producer (ReportLab PDF Library - www.reportlab.com) 
-  /Subject (\(unspecified\)) /Title (\(anonymous\)) /Trapped /False
->>
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 12 0 R >>
 endobj
 14 0 obj
-<<
-/Count 8 /Kids [ 4 0 R 5 0 R 6 0 R 7 0 R 8 0 R 9 0 R 10 0 R 11 0 R ] /Type /Pages
->>
+<< /Length 3449 >>
+stream
+0.95 g 48 788.89 507.28 12 re f 0 g
+BT /F3 8.5 Tf 1 0 0 1 52 791.89 Tm (npm run dev) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 772.89 Tm (Tests:) Tj ET
+0.95 g 48 746.89 507.28 12 re f 0 g
+BT /F3 8.5 Tf 1 0 0 1 52 749.89 Tm (cd backend) Tj ET
+0.95 g 48 734.89 507.28 12 re f 0 g
+BT /F3 8.5 Tf 1 0 0 1 52 737.89 Tm (npm test) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 718.89 Tm (Redis with Docker Compose:) Tj ET
+0.95 g 48 692.89 507.28 12 re f 0 g
+BT /F3 8.5 Tf 1 0 0 1 52 695.89 Tm (cd backend) Tj ET
+0.95 g 48 680.89 507.28 12 re f 0 g
+BT /F3 8.5 Tf 1 0 0 1 52 683.89 Tm (docker compose up -d) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 664.89 Tm (Alternative Redis command:) Tj ET
+0.95 g 48 638.89 507.28 12 re f 0 g
+BT /F3 8.5 Tf 1 0 0 1 52 641.89 Tm (docker run -d --name crime-redis -p 6379:6379 redis:7) Tj ET
+BT /F2 15 Tf 1 0 0 1 48 614.89 Tm (Project status) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 589.89 Tm (- User authentication: working) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 574.89 Tm (- Admin authentication and status enforcement: working) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 559.89 Tm (- Dynamic dataset APIs: working) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 544.89 Tm (- Dataset route isolation: working) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 529.89 Tm (- Admin update/delete governance APIs: working) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 514.89 Tm (- Transactional audit logging: working) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 499.89 Tm (- Audit-log read APIs: working) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 484.89 Tm (- Analytics: working) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 469.89 Tm (- Redis cache integration: working when Redis is available) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 454.89 Tm (- Admin frontend: pending) Tj ET
+BT /F2 15 Tf 1 0 0 1 48 431.89 Tm (Remaining work) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 406.89 Tm (- Build and integrate the admin frontend) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 391.89 Tm (- Mount or replace the current rate limiter for production use) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 376.89 Tm (- Add request-schema validation middleware for non-dataset endpoints) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 361.89 Tm (- Add user view-history APIs) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 346.89 Tm (- Add OpenAPI/Swagger generation) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 331.89 Tm (- Add deployment configuration and production Dockerization) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 316.89 Tm (- Add broader HTTP integration tests with isolated test database fixtures) Tj ET
+BT /F2 15 Tf 1 0 0 1 48 293.89 Tm (Frontend handoff notes) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 268.89 Tm (- Use the dataset schema endpoint to build editable table columns dynamically.) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 253.89 Tm (- Submit updates with conditions and newData.) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 238.89 Tm (- On a 409 response, show the matched-row count and require administrator) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 223.89 Tm (confirmation before resubmitting with confirmMultiple: true.) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 204.89 Tm (- Use the audit list endpoint for the governance activity table.) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 189.89 Tm (- Use the audit detail endpoint to display old values, new values, changed) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 174.89 Tm (columns, actor, IP address, and timestamp.) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 155.89 Tm (- The complete payload and response contracts are documented in) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 140.89 Tm (Crime_Records_API_Documentation \(1\).md.) Tj ET
+BT /F1 8 Tf 1 0 0 1 505.28 24 Tm (Page 5) Tj ET
+endstream
 endobj
 15 0 obj
-<<
-/Filter [ /ASCII85Decode /FlateDecode ] /Length 345
->>
-stream
-GasJM;,;fu'SYH?($E\4'=###.'K,/R/#UHIt0e>kXr=97fU.R)\0.ke"hCO\+b:E>QSu%qRb+i6K7.!5TFeRMSg;%&U-"_"a$]%'-oCFKuerE&ZhkX>TBSG^j<gtJSRon:'m_>/f["I/eR[r`*(1182sn@Qn<0W'qSE6CtZ\,n^*MCIL5fSH%kQu[GtJ^JAg[XAE"\XJ+>C+6O+6q_)"s7'[@S-$(\`;_X(<OWf>\HeT=o^VGghB0(<CGAQ@JGk,koEO`]T(QB]jjBsQs[2#0=0[klV(N:540TqHKu;l\ibWJc.VQOg3>qs>&&jMe`G8rVpNVAKJ"DKNZan,k69KZ!~>endstream
-endobj
-16 0 obj
-<<
-/Filter [ /ASCII85Decode /FlateDecode ] /Length 1024
->>
-stream
-Gau0D>B?5u(k(RKlsna`.D%.?^(E[M;p>J)an1_2W[%WMYc7To>qf+lAXh'639oubHB.1#S8X'G@h75)7O\>X"FN4`!$XZT!+HZF1'Bd<SeUs?-T6Ne40!-Z2Z&/Jh*07KNsolHoVAE(etHs^<C[7:J83`*mN>>"'h/4A=>B`<0g^gl_oT"V**i`7kIsI%jfKW[%fEpLJ33i&YpOe1#HQl[7aTq!`8RF/[oQqIejHLc[H:=[_9r3:R9'j_&Qle"b9WQtOc)?!l9kB($i7UR"YIp2ph2P!*qH"T`_#L!P<=/e"Wn,YR(GPs,M]]=XCa;iOsmDp4B$r36*3d0dm6-n+u@C3.9C(L;a.Qn/FoMb^P^+#(@K<&1U#ae$e$B\@W>M(-05g*?4BLM+/<cEn9j"BS?H%@b4hUq[N+p!9en=Vc%".c$aYZ'NtBa8&8J5:MaUu1C\QCB>gYl/8*aB_4IpXSKj6Qn(`9]OH4B(k9oKr+X7Ad'B5KEMT7q)T3RrGSHcg"ke*pYn@UMdh]8RE;D<L_:qH>IVi4>FV*Rh6Kpr'OpnV#Qu/cN`p*HijOAEIPCoaSOP%)F`HSh$h#/8RSuILj.A=n<(O^oRoG@iF]C%`Sa8+m^-BL1YNJ@1114Epk=\r!NR^n"#"aEP:fbU%$@KD'*chn24\\P.OHS3mC18+nO27(4$LW1u)D<![3f(_6mQ*6tj0\WMj_-<V1sTkrnW:Tqo7K8()!h&crrAqk($\4b'38p*B/]KQ:\[ee,NE1c\I:\'*hkNB?VgNgs`^Qt0Y27S]lLaQfff^W[&H7tr#Zp\*i"@XZ4L88ZDa'Ho"T7;Xf8Q@h-#6#pR2OO*1S]$pJ,ESnDR+kSf(T[S,_%'iG:Q;t2KWb!=p6I;%O3F'YKdm[S@+hB*O%=8QL]qn#'LRW24%VXf#ZZ\Uhq'Q3t,W^uC/8OViN37p7Lb0\I#rqT`EYJ4XO]6L&MjAX%:GT@Ks2YPI^qCn(N7Pdcal)^kN.6eC58"q1/i00u!OTH/jo~>endstream
-endobj
-17 0 obj
-<<
-/Filter [ /ASCII85Decode /FlateDecode ] /Length 1054
->>
-stream
-Gau0CgN)"%&:N^loU'eK`f_l[nj\7q+d5_0:-3mH.(0+7^/2u]PJ=;;_F9!oV91LM@:emKCNn*-6"#Q\XFJ,%J8YI%ha%5S#fZjJL'<0!i!6C!/bj=`AHTulL?j/gGX<sKog1BIM.bf$ST'ZC?(&)N<&qP$c-oh48f$61!PoihI'%er&0KT?9t'ug]3RJP3+!g/=4ak7/$QZKF&khd+e-E_/8,paR1b&3Hk(\IHkNJ),>Utn:6^213^#<Q>!bIO$=kPna>fM[62nl7F;'tFj*@mmX9IUFN=3b(H8%@*MKMbVj#CK<edZq1)4Tihdp\iPlW;53,am+@MA!@j"]L'+eBRCo^,031FI!^hbt8:=5;*mU;MP_SA7NB(P'-f+/9B,3Y+`pMWn]2cI1irXJ<-N`:6aZV4mXttS1jFWP/HlH06Sg]cJr^b=^K#*I3rTT9)4]#qg^[$?jV.fJWW=")n*9dJq`t`Zj[a2(4flf3kTBB[>,Gu-8KCJ'(I=MUB?WqZ`3^+Yo8tU2B9WA0Z4G4=Gc,?K=E9%d%6t891;99Q>8p3CILYrk]VR'a:EgY^[LiDjZ]*.$'OCV>*j#!hkMf8VcpO#>.aN?\S9Mqgb.i,U+R=AkYXE1q"@F1D=_]r3_p(E@\,[_9LMPM!C_i2'6>54d,p9&iD]saCZ<F1:k[bmXLQPgQ,nl2Km>FLQ"lAn7^9kVV,Qn)UZK-JU264\a\VY:85pR$[S:bC/9E\T2;uAtP&puU<l^^hN+&YX^kA(mU9/F[B@U+Y6t#<=Q-lI%<i5CL$S+b)M9C)X#3>'CPInCh,h'&!0$"HA*480ZBo^amdE$4T@78nj,t)iH1c@UsqpaqaqsQcJ@DC:+otfkd..Ejn)eOCjfUrI&A=CumhpBbL5L2,O[PG$cm)teZh\GrRaYZg1o<IT2ru[7Jip4g`=H4q%prR7lD@3P'i-GK.!"'XY*=K!+fl!]ES$96:HZ]o[p47Zp;Tj+F4Ch`[s6AAiTa<2+<&P$P[KE,MJ@%@=^8-#gO5mGkbnlLbp#-*n^Gop*"/mbkVu~>endstream
-endobj
-18 0 obj
-<<
-/Filter [ /ASCII85Decode /FlateDecode ] /Length 935
->>
-stream
-GauI69lldX&;KZQ'fr4_.7PBbaGmcKlAjo%[OsbDTK"cU\:Bdb^TYFqD1PPn7dVlfK*;(SG#uuk"L^F#o,jh0Ht6X_)$5To]*FF""L'nRZI,ifr,X6Z_"FqnH+kYuO:udn;/A_m=npU=1m%-"fo7F[)nKJ^%j0!\GC]Vpm!WaG]0''Qe2]8?[CNbg[![r?=!&?e=($LbU,:/[O^0DnN2K"C:0]%/[s8\Fa!+Cc/,gd@X!?MXqR8j-Nd/ON\e#e-?&7[%FK(=\kY<1D[V5n,b`c>$Q!/Ib:oT.KS?'%u]kk*EVN.'*S)#N[4GjJCl5,H)e/4*B;-#g8lG\bi5+V8DKot]N2k3ni"OHZ5F_#d=,n:(FoC?LX2&9(TCh-CR47XQrX#%o>5-%pa8Zq_[3Sp_sQ;''O/s*e.`!;Ugg"8e8e<)oZOQ9u*3j1giYs>N!k%clEXMASa@aeOeUmr+b[AO]c?%Ug&So,3=M+C9E`t3BFN$g8Y*1"`\rZmB!\-7WFDPm*J&<Bq"nYFV9aqc@J=f$1o(kP`=).'eN9>*'uXKFK>X@lE54-gX0`":#$rfi!NiPR22VI7tPY=hnLNQfo9D-g6`A^To&LXbt,A"0IGV$KMe3`PPcAK])RZ+dPRhsI0VVSj0X,t51K_ZUF-aj$&!.j";!4QZm_N>8>`M.<Q(I2J/te+taZhfS05fUE]<)9[qJJ`ZOQC]u0%jND@Z"6RFG]$plk;6SS)`u^VdV2/TGY-#nE?';iK,L:Z*(hXeQd[@Zaj/`l_K$1<3BpV56h_Gb;".(k'P)-,"EYIY$W)3M`&@.(/&83LfSD>j%2\/H-;`2VJ>T3i+pqmSf[bY[l@@fpaKb;rRF,5R&)SJ/nj6Phi/nMGdg+P.pW=>3nLCEOYpd+2.Kk#FS"t2O4[9Fppm)U,$n7n9iUYcppf@'~>endstream
-endobj
-19 0 obj
-<<
-/Filter [ /ASCII85Decode /FlateDecode ] /Length 1039
->>
-stream
-Gau0C?#Q2d'Re<2Ykldc;CJt.L;'ecR(B+eRkSPp'dHJr`^aW.gALi9UeP>3];jBg"U$1HS9s_8f,"]tH,.ZbaT8o1_"eNCLd3d%cuV;\NPH\%r9M.r2a&6Z8t@(1"8NJ<i4'h_Qi[L;ie>/kJVukupnB!m_4?!g.@7K*[(<L_1mZI^BQWbN7"7Jo\Uh;VLC-Jk*gC+F2$P"oUFg&d1$`]e^&VfuFZ5'$_"JsS;AM&s"S9JN=F1?A9-+a)9815n`HXF>PIO6.6<SPheJFE)?Y6BK1Y%UK8XL(\3m6*7d2bW^m^UcpS\\gkOAZoqN9=meB?J,n>R5Cc?)XO]#M>3rOB'DN=tEX%naDF9Tq1d1<utVMVmdla?/N+kifrtu%AcGR,]RkNN$QMb"c'gn:.grkp(ItQKD^/`3!#`pJY7F^I-hUe$T[]]jS6eBng4If,KQI[c)0Z=QeZfN,eaBWj50OH"AB'JcPofI8>oN0Tsi,0eXWt?;Y&@N8Le89)s`#V\%$F?X^=p6Y7("h>)79tQ>aN3r\AA-,t-W.M:*96aW9p3`Ik9_B:#mA/S=/'5hgZ[g7Dqg&ne=seNt%KOan8%AuAbnm8PM.1U]%?#MP8de2HBW/namEHq;%qBHG\bM*aiZ><OK9H?(AbKdqF0%TIH%i`mNV.:[4>#]"j-D8e:nfM?-!YI_j,'5*kK`]W6W.j#b`c8'E\H"gp;`(m0+Va`.84,73T4*lgJ7C/u93QN0CU2BN>@nU@h.)HB#D:>*=nUdb!h83#6Su^*n$>jk_<$%"U'li*iPjgMB?,#'11qZYX9g%u`'>H)DAI^rqCcb-gnaaW=1q[Ks-Y>>Tr?F]]]j-h*S\Ln:A3IkT%i'7HMlZX4]K)H9[1rkILN^s2(%Y&J=C&uK=`d)4/sf@@5T3CZC,Z_q_@K<?oPF9\]oX06nF6S6NUp!2@dc;%6\Mg$L"]+JWrVG"_`1F4E-6RbSjZq76st94CG5q*nb(.?&.SKU0-L*XiF%o)BD8jjpp'K(IO.C1W".2M%mgu[BE~>endstream
-endobj
-20 0 obj
-<<
-/Filter [ /ASCII85Decode /FlateDecode ] /Length 1019
->>
-stream
-Gau0C9iKe#&A@7.kX[d6A'*WA"UIdN/MqI&UIWsWXC>D5,_sLVYO"N2dR9<B`fkYK[Ii=YG+[=s\E\[`J)10EP(M_8#Ts1_$)$b^+M@i?FS'n_+5c]X&B14Sa%<@E."dris/r*Y28ed]of@!*N]UKn%ZW`$!9l.U"P1%2.B(T_En7ZEQ^"o30]APlopb3dT$@jhl'0'#$7/HcK!g3#@>Qj/f+t0X/Lb"!b`Ah:)n3=`8Xeu8>%17s>tq]BL5H2Y]J@o%M%s2%/AqYN793hom:YrG8;68`3F38#+neVrd<;[Vjg;jOV2a:ErE8sF22aX#NASPk:'o]r[RIJuR<OF?^882>0J9gY0.SitaA,=^Ca4;0lY]d@=jpWEklc/:iUSnW2lr3hN_(GUp<LFCG@C!2GFPHTF?C6@l32[D@N]nl^WV`QUW<rgfY1-77d[EH"+1nF+`[\X:kRF2A1uer4IFJZ;ikhDEEqCR?3Cto^e]Io`3,FL'g4_,INRe6F/5%Kd.b$\q,-L/ZZ/#i):'Wph6&(\;kS^On_Z5F/Ae<DlNs3WW[9nKM-*[,:(Xab#F;_0(C`7&8mk6g3%<BD<b7HM'/QA$8]R-]4G^(NF!I%u71oap]^!ng^0+@(@GeAF'ssbsmZ3,&JDRCT]u`>midFTHLjX'1ps;dcQ-cg1<hts,1bZ*IoVFTEBHo95AfNI[&MgXjT1T>:lU4cog_E;ocq]u]Qo[)r<[lCn")B!QDl68FS1P#5X%Z&bP;^<qO`?Pj-/lf/1:!*3<S-.ej)eU!OY&#_fCa6pb1=B_EcCEAQ;g"gh'Z6a:Kj1JW\5Wl-]t`qS(ee+IA'G%aZK/%.,N]+TQkCIJ:)-\6K3Nbl1O0!1^14-SGk@R$-:lU-D5tpklg275gqs6AeN;4XFP774E$1pChSoh?t$RkETkFJ3r\T7ngVj7@eNt5o:*D,]q0]Oo)6FY[a+^tgu3DbT2!'j:JU<Hs4R!d,`]mE[oWb0Gj:_n\TeeK*P;QN5LAlY)?~>endstream
-endobj
-21 0 obj
-<<
-/Filter [ /ASCII85Decode /FlateDecode ] /Length 980
->>
-stream
-Gau1.>>q:N(l%MT'tJF1AhaVT^$AFmf%%4;\6`ej;H=&?W7q4C)l[;a8[h?jdfZE,rSG"jSkoQ_GbFWX:B:1KJ^Xo,#QsN*+C3NKG6qMMGu2lR2g#d9[\MQb@uDk%le7GSWhBY$Q306K`3cI@&p#E^'j.Ko(QFUj,Or3ur;?F.i;El:f,*-+`r):=2no]B%;?SS2/MId:^n@Y%W2R;4$bD+Q%F0.GWT:3SBfE+eM-DJ$MD)!Rf7K5hHdia!D^qg8'2]X4tWU,_!Z'HR.a`CV.bp,h)('Cl_\87BRRO),`-ojpQuX?Vo:l4+f0\T/.C;$b/1C@Tin2j4lqjo,n6SthhDjDd=#NSlJ"%IU1K-6+D7kt"J3R'6;_T9klq4^pZ7g[ar(hb6`c^n)WDkDWto:!SN,t@PIfuePn&Bq=Lb]B8-hoEOa"-R=+*s1L=TLmAfTGIMjQ1f"0"d;PS>'3qqFM/LT]!BE^Q!VL/]-=;%^(;:L%t26,_)`SCG'1;h)][@bWDOUI!t=/DJ\(#nuJ$O<R;"D[!!r8-LqtN=V'^I?I@,UV'.n[_^8GlL[Hu;6FfR;cZ^AG@r0rL&Btan1af$VHKF,'?]AXb"p\r'Q-*3#99U@=&1(M.6jA9P_o=7Z&ga;E@'6TVJ?u1%5r[3<WuK@2P92=Cq"?[(%SW3*=)DmlJsuac-@J,)[uO5"dA%qjpCC,g"blu52JYCD$V-j^t(@Xcpo"P)<JD&UNO/)KALGF%>;T`J;h,O>hjYR1%B[\bOlV74dDM@Uc49[l&>mVkGk-5BN)!2Ba%HIV'L9hD-'R:+]AAH%`D`'KXB5*mDN9[mf>_t/Mn8U`TlmKQI.tAXddC&(pR\Qot"YM6i"T,GN7Sm=eUBHI83lUbOWpWUsE2^Rnba<ZM6Us>M+E%=()b.F<#*Xjo5k7CuLJXG7GMSIHZ0cM,c7C>0N>iB]alNqoc[C0<SRM\W*:Jq$S]1X&f~>endstream
-endobj
-22 0 obj
-<<
-/Filter [ /ASCII85Decode /FlateDecode ] /Length 810
->>
-stream
-Gau0B?#uJh&:EYBggf'+:]qCQI7nD)WQ2CeWjI2NTK#Q'E+FdFs1U7+h$AYe;KitIOTaCghVB4Y*-It;5:Z`:.D32WJ6\cAJ?Y#a:*HLcPD+HJM1#ZHa:?*9<,YmJXec"<Q_#b9)`e&!/W46$klJZS6TE=:QZ-r8B&Aus?NGS.$TQp"<@TM9-7auu(&?Tr6soD^h4AR.hEVQ[?"doW(>:`\cUM:^o]kF*"$%YYkF6OkJqc`A03)On)fT)#Qo8$L[Gb\7AE/b8WVeG0UK$@OYEe\WTs=G]V=JXWbQPRbEA0DB3*@]1P`$;cOVZ.lO8C[r563gTr*jYRFcf7%YY06edL1RdO!"2+k6==;J6iEc_,gL]Q6!O;-4&?"jIITc*=BTBC\t8%e6iG%4-6#;=*XCQcP"Xr`HJJ@]DrXIJg7Kkk]i5:U(BL:j=6@1'FGe5OCuJp/kP%?Kgdbh`$5W<pes:4ks\-]\e&dn]$Q45[]F'9a>2Rq7(Ljf>\'lrB,b@[&2^c.0/]t9<(sG@D\^mUN]rWKm"&5qI4^kD)NKPQ^.tf*el'IP/</TH:kR?8-_IAepptcZU>f<Zn^?V_fH8g,FU$ls1(g*lF'":o`hLM+ND7I-WcP<jl*>\K;PYKmLYb0i<aLW)[8UQ#iFcW!N7NgRS1"!LV_*^_H^Sb$=oU\cSR*]6_Qu6o]1;Ihi:e]a7CCk6V9F*o]96Ct,E$Z?9oY=JEL1UsVK7)MpBU)jj*3lZIl`VQqn7ma:@F@3XT-diin5122_a)IRJGj[^@@0E1E(b:OMm'&6<h$Poc9cr]rV~>endstream
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 14 0 R >>
 endobj
 xref
-0 23
+0 16
 0000000000 65535 f 
-0000000073 00000 n 
-0000000114 00000 n 
-0000000221 00000 n 
-0000000333 00000 n 
-0000000538 00000 n 
-0000000743 00000 n 
-0000000948 00000 n 
-0000001153 00000 n 
-0000001358 00000 n 
-0000001563 00000 n 
-0000001769 00000 n 
-0000001975 00000 n 
-0000002045 00000 n 
-0000002329 00000 n 
-0000002433 00000 n 
-0000002869 00000 n 
-0000003985 00000 n 
-0000005131 00000 n 
-0000006157 00000 n 
-0000007288 00000 n 
-0000008399 00000 n 
-0000009470 00000 n 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000148 00000 n 
+0000000218 00000 n 
+0000000293 00000 n 
+0000000361 00000 n 
+0000003687 00000 n 
+0000003839 00000 n 
+0000007751 00000 n 
+0000007903 00000 n 
+0000011059 00000 n 
+0000011213 00000 n 
+0000014835 00000 n 
+0000014989 00000 n 
+0000018491 00000 n 
 trailer
-<<
-/ID 
-[<f66b66f96500b72099c9e864d8b83bb8><f66b66f96500b72099c9e864d8b83bb8>]
-% ReportLab generated PDF document -- digest (http://www.reportlab.com)
-
-/Info 13 0 R
-/Root 12 0 R
-/Size 23
->>
+<< /Size 16 /Root 1 0 R >>
 startxref
-10371
+18645
 %%EOF

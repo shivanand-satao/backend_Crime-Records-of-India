@@ -142,6 +142,11 @@ const loginUser = async (req, res) => {
             });
         }
 
+        await pool.query(
+            `UPDATE users SET last_login = NOW() WHERE id = ?`,
+            [user.id]
+        );
+
         const payload = {
             id: user.id,
             username: user.username,
@@ -244,6 +249,18 @@ const loginAdmin = async (req, res) => {
                 message: 'Invalid credentials'
             });
         }
+
+        if (admin.status && admin.status !== 'active') {
+            return res.status(403).json({
+                success: false,
+                message: 'Admin account is not active'
+            });
+        }
+
+        await pool.query(
+            `UPDATE admins SET last_login = NOW() WHERE id = ?`,
+            [admin.id]
+        );
 
         const payload = {
             id: admin.id,
