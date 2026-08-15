@@ -9,7 +9,9 @@ const {
 } = require('../../services/datasetTableService');
 
 const MAX_AUDIT_PAGE_SIZE = 100;
+const MAX_ADMIN_PAGE_SIZE = 100;
 const AUDIT_ACTIONS = new Set(['INSERT', 'UPDATE', 'DELETE']);
+const USER_STATUSES = new Set(['active', 'inactive', 'banned']);
 const CLIENT_INPUT_DB_ERRORS = new Set([
     'ER_BAD_NULL_ERROR',
     'ER_DATA_TOO_LONG',
@@ -311,6 +313,273 @@ const parsePositiveInteger = (value, fallback, maximum = Number.MAX_SAFE_INTEGER
     return parsed;
 };
 
+const normalizeOptionalText = (value, fieldName, maximumLength) => {
+    if (value === undefined) {
+        return null;
+    }
+
+    if (typeof value !== 'string') {
+        const error = new Error(`${fieldName} must be a string`);
+        error.statusCode = 400;
+        throw error;
+    }
+
+    const normalized = value.trim();
+
+    if (normalized.length > maximumLength) {
+        const error = new Error(
+            `${fieldName} must not exceed ${maximumLength} characters`
+        );
+        error.statusCode = 400;
+        throw error;
+    }
+
+    return normalized || null;
+};
+
+const normalizeSearchLog = log => {
+    if (typeof log.search_filters === 'string') {
+        try {
+            log.search_filters = JSON.parse(log.search_filters);
+        } catch (error) {
+            // Preserve legacy text if an older search log is not valid JSON.
+        }
+    }
+
+    return log;
+};
+
+const getAdminUsers = async (req, res) => {
+    try {
+        const page = parsePositiveInteger(req.query.page, 1);
+        const limit = parsePositiveInteger(
+            req.query.limit,
+            20,
+            MAX_ADMIN_PAGE_SIZE
+        );
+        const offset = (page - 1) * limit;
+        const search = normalizeOptionalText(req.query.search, 'search', 100);
+        const status = normalizeOptionalText(req.query.status, 'status', 20);
+        const clauses = [];
+        const values = [];
+
+        if (status && !USER_STATUSES.has(status.toLowerCase())) {
+            return res.status(400).json({
+                success: false,
+                message: 'status must be active, inactive, or banned'
+            });
+        }
+
+        if (search) {
+            clauses.push(`
+                (
+                    username LIKE CONCAT('%', ?, '%')
+                    OR full_name LIKE CONCAT('%', ?, '%')
+                    OR email LIKE CONCAT('%', ?, '%')
+                    OR department LIKE CONCAT('%', ?, '%')
+                )
+            `);
+            values.push(search, search, search, search);
+        }
+
+        if (status) {
+            clauses.push('status = ?');
+            values.push(status.toLowerCase());
+        }
+
+        const whereSql = clauses.length > 0
+            ? `WHERE ${clauses.join(' AND ')}`
+            : '';
+        const [summaryResult, countResult, usersResult] = await Promise.all([
+            pool.query(`
+                SELECT
+                    COUNT(*) AS totalUsers,
+                    COALESCE(SUM(status = 'active'), 0) AS activeAccounts,
+                    COALESCE(
+                        SUM(last_login >= NOW() - INTERVAL 7 DAY),
+                        0
+                    ) AS activeInLast7Days,
+                    COALESCE(SUM(status = 'inactive'), 0) AS inactiveAccounts
+                FROM users
+            `),
+            pool.query(
+                `SELECT COUNT(*) AS total FROM users ${whereSql}`,
+                values
+            ),
+            pool.query(
+                `
+                SELECT
+                    id,
+                    username,
+                    email,
+                    full_name,
+                    department,
+                    status,
+                    last_login,
+                    created_at,
+                    updated_at
+                FROM users
+                ${whereSql}
+                ORDER BY created_at DESC, id DESC
+                LIMIT ? OFFSET ?
+                `,
+                [...values, limit, offset]
+            )
+        ]);
+        const summaryRow = summaryResult[0][0];
+        const totalRecords = Number(countResult[0][0].total);
+
+        return res.status(200).json({
+            success: true,
+            summary: {
+                totalUsers: Number(summaryRow.totalUsers),
+                activeAccounts: Number(summaryRow.activeAccounts),
+                activeInLast7Days: Number(summaryRow.activeInLast7Days),
+                inactiveAccounts: Number(summaryRow.inactiveAccounts)
+            },
+            page,
+            limit,
+            totalRecords,
+            totalPages: Math.ceil(totalRecords / limit),
+            data: usersResult[0]
+        });
+    } catch (error) {
+        return sendControllerError(res, error, 'Failed to fetch users');
+    }
+};
+
+const getAdminSearchLogs = async (req, res) => {
+    try {
+        const page = parsePositiveInteger(req.query.page, 1);
+        const limit = parsePositiveInteger(
+            req.query.limit,
+            20,
+            MAX_ADMIN_PAGE_SIZE
+        );
+        const offset = (page - 1) * limit;
+        const username = normalizeOptionalText(
+            req.query.username ?? req.query.search,
+            'username',
+            50
+        );
+        const dataset = normalizeOptionalText(
+            req.query.dataset ?? req.query.tableName ?? req.query.table,
+            'dataset',
+            100
+        );
+        const clauses = [];
+        const values = [];
+
+        if (username) {
+            clauses.push("username LIKE CONCAT('%', ?, '%')");
+            values.push(username);
+        }
+
+        if (dataset) {
+            clauses.push('table_name = ?');
+            values.push(dataset);
+        }
+
+        const whereSql = clauses.length > 0
+            ? `WHERE ${clauses.join(' AND ')}`
+            : '';
+        const [
+            totalSearchesResult,
+            keywordResult,
+            trendingDatasetResult,
+            datasetsResult,
+            countResult,
+            logsResult
+        ] = await Promise.all([
+            pool.query('SELECT COUNT(*) AS totalSearches FROM search_logs'),
+            pool.query(`
+                SELECT
+                    filter_values.keyword,
+                    COUNT(*) AS total
+                FROM search_logs
+                JOIN JSON_TABLE(
+                    COALESCE(search_logs.search_filters, JSON_OBJECT()),
+                    '$.*' COLUMNS (
+                        keyword VARCHAR(255) PATH '$' NULL ON ERROR
+                    )
+                ) AS filter_values ON TRUE
+                WHERE filter_values.keyword IS NOT NULL
+                    AND TRIM(filter_values.keyword) <> ''
+                GROUP BY filter_values.keyword
+                ORDER BY total DESC, filter_values.keyword ASC
+                LIMIT 1
+            `),
+            pool.query(`
+                SELECT table_name AS dataset, COUNT(*) AS total
+                FROM search_logs
+                WHERE table_name IS NOT NULL AND table_name <> ''
+                GROUP BY table_name
+                ORDER BY total DESC, table_name ASC
+                LIMIT 1
+            `),
+            pool.query(`
+                SELECT DISTINCT table_name AS dataset
+                FROM search_logs
+                WHERE table_name IS NOT NULL AND table_name <> ''
+                ORDER BY table_name ASC
+            `),
+            pool.query(
+                `SELECT COUNT(*) AS total FROM search_logs ${whereSql}`,
+                values
+            ),
+            pool.query(
+                `
+                SELECT
+                    id,
+                    user_id,
+                    username,
+                    table_name,
+                    search_filters,
+                    result_count,
+                    user_ip,
+                    status,
+                    created_at
+                FROM search_logs
+                ${whereSql}
+                ORDER BY created_at DESC, id DESC
+                LIMIT ? OFFSET ?
+                `,
+                [...values, limit, offset]
+            )
+        ]);
+        const totalRecords = Number(countResult[0][0].total);
+        const mostSearchedKeyword = keywordResult[0][0] || null;
+        const trendingDataset = trendingDatasetResult[0][0] || null;
+
+        return res.status(200).json({
+            success: true,
+            summary: {
+                totalSearches: Number(totalSearchesResult[0][0].totalSearches),
+                mostSearchedKeyword: mostSearchedKeyword
+                    ? {
+                        keyword: mostSearchedKeyword.keyword,
+                        total: Number(mostSearchedKeyword.total)
+                    }
+                    : null,
+                trendingDataset: trendingDataset
+                    ? {
+                        dataset: trendingDataset.dataset,
+                        total: Number(trendingDataset.total)
+                    }
+                    : null
+            },
+            datasets: datasetsResult[0].map(row => row.dataset),
+            page,
+            limit,
+            totalRecords,
+            totalPages: Math.ceil(totalRecords / limit),
+            data: logsResult[0].map(normalizeSearchLog)
+        });
+    } catch (error) {
+        return sendControllerError(res, error, 'Failed to fetch search logs');
+    }
+};
+
 const normalizeAuditDate = (value, endOfDay = false) => {
     if (value === undefined) {
         return null;
@@ -502,6 +771,8 @@ const getAuditLogById = async (req, res) => {
 };
 
 module.exports = {
+    getAdminUsers,
+    getAdminSearchLogs,
     updateTableCell,
     deleteTableRow,
     getAuditLogs,

@@ -4,7 +4,7 @@ Backend API reference for frontend integration.
 
 ## Base URL
 
-Local development: `http://localhost:3000/api`
+Local development: `http://localhost:3001/api`
 
 All protected endpoints require:
 
@@ -103,6 +103,108 @@ in Redis for five minutes.
 
 Admin governance routes require a valid admin JWT and the `superadmin`, `admin`,
 or `moderator` role.
+
+### User activity dashboard
+
+`GET /admin/users?page=1&limit=20&search=analyst&status=active`
+
+Returns the user-activity summary cards and a paginated user list. `search`
+matches username, full name, email, or department. `status` can be `active`,
+`inactive`, or `banned`. Both filters are optional, and `limit` is 1-100.
+Summary values always cover all users rather than only the filtered page.
+
+The endpoint never returns `password_hash`.
+
+```json
+{
+  "success": true,
+  "summary": {
+    "totalUsers": 12,
+    "activeAccounts": 8,
+    "activeInLast7Days": 4,
+    "inactiveAccounts": 3
+  },
+  "page": 1,
+  "limit": 20,
+  "totalRecords": 1,
+  "totalPages": 1,
+  "data": [
+    {
+      "id": 7,
+      "username": "analyst",
+      "email": "analyst@example.com",
+      "full_name": "Crime Analyst",
+      "department": "Analysis",
+      "status": "active",
+      "last_login": "2026-08-15T18:20:00.000Z",
+      "created_at": "2026-08-01T09:00:00.000Z",
+      "updated_at": "2026-08-15T18:20:00.000Z"
+    }
+  ]
+}
+```
+
+`activeInLast7Days` counts accounts whose `last_login` is within the previous
+seven days. `inactiveAccounts` counts accounts with the `inactive` status;
+banned accounts remain visible through the status filter but are not included
+in that card.
+
+### Search logs dashboard
+
+`GET /admin/search-logs?page=1&limit=20&username=analyst&dataset=auto_theft`
+
+Returns search-log summary cards, dataset dropdown options, and paginated logs.
+`username` performs a partial match and `dataset` performs an exact dataset
+match. Both filters are optional, and `limit` is 1-100. `search` is accepted as
+an alias for `username`; `table` and `tableName` are accepted as aliases for
+`dataset`.
+
+```json
+{
+  "success": true,
+  "summary": {
+    "totalSearches": 21,
+    "mostSearchedKeyword": {
+      "keyword": "Delhi",
+      "total": 7
+    },
+    "trendingDataset": {
+      "dataset": "auto_theft",
+      "total": 9
+    }
+  },
+  "datasets": [
+    "auto_theft",
+    "victims_of_rape"
+  ],
+  "page": 1,
+  "limit": 20,
+  "totalRecords": 1,
+  "totalPages": 1,
+  "data": [
+    {
+      "id": 10,
+      "user_id": 7,
+      "username": "analyst",
+      "table_name": "auto_theft",
+      "search_filters": {
+        "Area_name": "Delhi",
+        "Year": 2001
+      },
+      "result_count": 4,
+      "user_ip": "127.0.0.1",
+      "status": "success",
+      "created_at": "2026-08-15T18:25:00.000Z"
+    }
+  ]
+}
+```
+
+`mostSearchedKeyword` is the most frequent non-empty value stored in the
+structured `search_filters` objects. `trendingDataset` is the dataset with the
+most log records. Either value is `null` when no matching source data exists.
+Summary values and dataset options cover all logs rather than only the filtered
+page.
 
 ### View dataset tables as an admin
 
@@ -208,6 +310,8 @@ dataset mutation, so a failed audit insert rolls back the data change.
 - Send the access token in the `Authorization` header.
 - Use schema responses to render dynamic dataset columns.
 - Use pagination for every dataset and audit-log list.
+- Populate the Users page from `GET /admin/users` and the Search Logs page from
+  `GET /admin/search-logs`; each response includes its dashboard summary.
 - Treat a `409` mutation response as a request to add more current row fields to
   the row selector; never retry it as a bulk mutation.
 - Show the audit-log detail response when an administrator reviews a change.
