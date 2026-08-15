@@ -104,54 +104,66 @@ in Redis for five minutes.
 Admin governance routes require a valid admin JWT and the `superadmin`, `admin`,
 or `moderator` role.
 
-### Update dataset rows
+### View dataset tables as an admin
 
-`PUT /admin/table/:table/update`
+Admins use the same authenticated read endpoints as users:
+
+- `GET /tables`
+- `GET /tables/:table/schema`
+- `GET /data/:table?page=1&limit=20`
+- `GET /data/:table/filter-options/:column`
+- `POST /data/:table/search`
+
+The frontend can render the returned rows and add Edit and Delete actions at
+the end of each row.
+
+### Update one cell in one row
+
+`PATCH /admin/table/:table/row`
 
 ```json
 {
-  "conditions": {
+  "row": {
     "Area_name": "Delhi",
-    "Year": 2001
+    "Year": 2001,
+    "Group_Name": "AT1-Motor Cycles/ Scooters",
+    "Sub_Group_Name": "1. Motor Cycles/ Scooters"
   },
-  "newData": {
-    "Auto_Theft_Stolen": 9999
-  }
+  "column": "Auto_Theft_Stolen",
+  "value": 9999
 }
 ```
 
-`updateData` is accepted as a compatibility alias for `newData`, but both names
-must not be sent in the same request. Conditions and update columns must exist
-in the selected dataset table. `null` values are supported in conditions and
-updates.
+The `row` object identifies the existing row by its current column values. The
+request changes only the named `column` and succeeds only when exactly one row
+matches. If the selector matches multiple rows, it returns `409` and no data or
+audit record is written. `PUT /admin/table/:table/row` is an equivalent method
+alias for clients that do not use `PATCH`.
 
-The endpoint locks matching rows, updates them, writes the audit record, and
-commits both actions in one database transaction. If more than one row matches,
-the request returns `409` until the caller explicitly resubmits with:
+Dataset tables currently do not expose primary-key columns, so the frontend
+should send enough current row values to identify one row. The response includes
+the changed column, old value, new value, updated row, and `auditLogId`.
 
-```json
-{
-  "conditions": { "Area_name": "Delhi" },
-  "newData": { "Auto_Theft_Stolen": 9999 },
-  "confirmMultiple": true
-}
-```
+### Delete one selected row
 
-### Delete dataset rows
-
-`DELETE /admin/table/:table/delete`
+`DELETE /admin/table/:table/row`
 
 ```json
 {
-  "conditions": {
+  "row": {
     "Area_name": "Delhi",
-    "Year": 2001
+    "Year": 2001,
+    "Group_Name": "AT1-Motor Cycles/ Scooters",
+    "Sub_Group_Name": "1. Motor Cycles/ Scooters"
   }
 }
 ```
 
-The same `confirmMultiple` rule applies. Deletion is transactional and the
-complete pre-delete rows are stored in the audit log.
+Deletion also requires exactly one match. The response includes the deleted row
+and `auditLogId`; the complete pre-delete row is stored in the audit log.
+
+There are no exposed bulk update or bulk delete routes. Every mutation is a
+single-row operation.
 
 ### Read audit logs
 
@@ -186,7 +198,7 @@ dataset mutation, so a failed audit insert rolls back the data change.
 - `401` - missing or invalid access token
 - `403` - authenticated user lacks admin access or admin is inactive
 - `404` - dataset table, column, or audit log not found
-- `409` - multiple matching rows require explicit confirmation
+- `409` - the selected row is not unique
 - `429` - rate limit exceeded when the limiter is enabled
 - `500` - unexpected server error
 
@@ -196,8 +208,8 @@ dataset mutation, so a failed audit insert rolls back the data change.
 - Send the access token in the `Authorization` header.
 - Use schema responses to render dynamic dataset columns.
 - Use pagination for every dataset and audit-log list.
-- Treat a `409` mutation response as a confirmation step before resubmitting with
-  `confirmMultiple: true`.
+- Treat a `409` mutation response as a request to add more current row fields to
+  the row selector; never retry it as a bulk mutation.
 - Show the audit-log detail response when an administrator reviews a change.
 
 ## Local development

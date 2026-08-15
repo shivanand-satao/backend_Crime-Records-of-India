@@ -80,7 +80,7 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 6 0 R >>
 endobj
 8 0 obj
-<< /Length 4615 >>
+<< /Length 4328 >>
 stream
 BT /F1 10.5 Tf 1 0 0 1 58 791.89 Tm (- GET /tables - list available dataset tables.) Tj ET
 BT /F1 10.5 Tf 1 0 0 1 58 776.89 Tm (- GET /tables/:table/schema - return column names, data types, and nullability.) Tj ET
@@ -118,38 +118,33 @@ BT /F1 10.5 Tf 1 0 0 1 48 453.89 Tm (five minutes.) Tj ET
 BT /F2 15 Tf 1 0 0 1 48 426.89 Tm (Admin Governance APIs) Tj ET
 BT /F1 10.5 Tf 1 0 0 1 48 401.89 Tm (Admin governance routes require a valid admin JWT and the superadmin, admin, or moderator) Tj ET
 BT /F1 10.5 Tf 1 0 0 1 48 387.89 Tm (role.) Tj ET
-BT /F2 12 Tf 1 0 0 1 48 360.89 Tm (Update dataset rows) Tj ET
-BT /F1 10.5 Tf 1 0 0 1 48 341.89 Tm (PUT /admin/table/:table/update) Tj ET
-0.95 g 48 315.89 507.28 12 re f 0 g
-BT /F3 8.5 Tf 1 0 0 1 52 318.89 Tm ({) Tj ET
-0.95 g 48 303.89 507.28 12 re f 0 g
-BT /F3 8.5 Tf 1 0 0 1 52 306.89 Tm (  "conditions": {) Tj ET
-0.95 g 48 291.89 507.28 12 re f 0 g
-BT /F3 8.5 Tf 1 0 0 1 52 294.89 Tm (    "Area_name": "Delhi",) Tj ET
-0.95 g 48 279.89 507.28 12 re f 0 g
-BT /F3 8.5 Tf 1 0 0 1 52 282.89 Tm (    "Year": 2001) Tj ET
-0.95 g 48 267.89 507.28 12 re f 0 g
-BT /F3 8.5 Tf 1 0 0 1 52 270.89 Tm (  },) Tj ET
-0.95 g 48 255.89 507.28 12 re f 0 g
-BT /F3 8.5 Tf 1 0 0 1 52 258.89 Tm (  "newData": {) Tj ET
-0.95 g 48 243.89 507.28 12 re f 0 g
-BT /F3 8.5 Tf 1 0 0 1 52 246.89 Tm (    "Auto_Theft_Stolen": 9999) Tj ET
-0.95 g 48 231.89 507.28 12 re f 0 g
-BT /F3 8.5 Tf 1 0 0 1 52 234.89 Tm (  }) Tj ET
-0.95 g 48 219.89 507.28 12 re f 0 g
-BT /F3 8.5 Tf 1 0 0 1 52 222.89 Tm (}) Tj ET
-BT /F1 10.5 Tf 1 0 0 1 48 203.89 Tm (updateData is accepted as a compatibility alias for newData, but both names must not be) Tj ET
-BT /F1 10.5 Tf 1 0 0 1 48 189.89 Tm (sent in the same request. Conditions and update columns must exist in the selected) Tj ET
-BT /F1 10.5 Tf 1 0 0 1 48 175.89 Tm (dataset table. null values are supported in conditions and updates.) Tj ET
-BT /F1 10.5 Tf 1 0 0 1 48 156.89 Tm (The endpoint locks matching rows, updates them, writes the audit record, and commits both) Tj ET
-BT /F1 10.5 Tf 1 0 0 1 48 142.89 Tm (actions in one database transaction. If more than one row matches, the request returns) Tj ET
-BT /F1 10.5 Tf 1 0 0 1 48 128.89 Tm (409 until the caller explicitly resubmits with:) Tj ET
-0.95 g 48 102.88999999999999 507.28 12 re f 0 g
-BT /F3 8.5 Tf 1 0 0 1 52 105.88999999999999 Tm ({) Tj ET
-0.95 g 48 90.88999999999999 507.28 12 re f 0 g
-BT /F3 8.5 Tf 1 0 0 1 52 93.88999999999999 Tm (  "conditions": { "Area_name": "Delhi" },) Tj ET
-0.95 g 48 78.88999999999999 507.28 12 re f 0 g
-BT /F3 8.5 Tf 1 0 0 1 52 81.88999999999999 Tm (  "newData": { "Auto_Theft_Stolen": 9999 },) Tj ET
+BT /F2 12 Tf 1 0 0 1 48 360.89 Tm (View dataset tables as an admin) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 341.89 Tm (Admins use the same authenticated read endpoints as users:) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 322.89 Tm (- GET /tables) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 307.89 Tm (- GET /tables/:table/schema) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 292.89 Tm (- GET /data/:table?page=1&limit=20) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 277.89 Tm (- GET /data/:table/filter-options/:column) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 262.89 Tm (- POST /data/:table/search) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 247.89 Tm (The frontend can render the returned rows and add Edit and Delete actions at the end of) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 233.89 Tm (each row.) Tj ET
+BT /F2 12 Tf 1 0 0 1 48 206.89 Tm (Update one cell in one row) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 187.89 Tm (PATCH /admin/table/:table/row) Tj ET
+0.95 g 48 161.89 507.28 12 re f 0 g
+BT /F3 8.5 Tf 1 0 0 1 52 164.89 Tm ({) Tj ET
+0.95 g 48 149.89 507.28 12 re f 0 g
+BT /F3 8.5 Tf 1 0 0 1 52 152.89 Tm (  "row": {) Tj ET
+0.95 g 48 137.89 507.28 12 re f 0 g
+BT /F3 8.5 Tf 1 0 0 1 52 140.89 Tm (    "Area_name": "Delhi",) Tj ET
+0.95 g 48 125.88999999999999 507.28 12 re f 0 g
+BT /F3 8.5 Tf 1 0 0 1 52 128.89 Tm (    "Year": 2001,) Tj ET
+0.95 g 48 113.88999999999999 507.28 12 re f 0 g
+BT /F3 8.5 Tf 1 0 0 1 52 116.88999999999999 Tm (    "Group_Name": "AT1-Motor Cycles/ Scooters",) Tj ET
+0.95 g 48 101.88999999999999 507.28 12 re f 0 g
+BT /F3 8.5 Tf 1 0 0 1 52 104.88999999999999 Tm (    "Sub_Group_Name": "1. Motor Cycles/ Scooters") Tj ET
+0.95 g 48 89.88999999999999 507.28 12 re f 0 g
+BT /F3 8.5 Tf 1 0 0 1 52 92.88999999999999 Tm (  },) Tj ET
+0.95 g 48 77.88999999999999 507.28 12 re f 0 g
+BT /F3 8.5 Tf 1 0 0 1 52 80.88999999999999 Tm (  "column": "Auto_Theft_Stolen",) Tj ET
 BT /F1 8 Tf 1 0 0 1 505.28 24 Tm (Page 2) Tj ET
 endstream
 endobj
@@ -157,60 +152,63 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 8 0 R >>
 endobj
 10 0 obj
-<< /Length 3955 >>
+<< /Length 4314 >>
 stream
 0.95 g 48 788.89 507.28 12 re f 0 g
-BT /F3 8.5 Tf 1 0 0 1 52 791.89 Tm (  "confirmMultiple": true) Tj ET
+BT /F3 8.5 Tf 1 0 0 1 52 791.89 Tm (  "value": 9999) Tj ET
 0.95 g 48 776.89 507.28 12 re f 0 g
 BT /F3 8.5 Tf 1 0 0 1 52 779.89 Tm (}) Tj ET
-BT /F2 12 Tf 1 0 0 1 48 752.89 Tm (Delete dataset rows) Tj ET
-BT /F1 10.5 Tf 1 0 0 1 48 733.89 Tm (DELETE /admin/table/:table/delete) Tj ET
-0.95 g 48 707.89 507.28 12 re f 0 g
-BT /F3 8.5 Tf 1 0 0 1 52 710.89 Tm ({) Tj ET
-0.95 g 48 695.89 507.28 12 re f 0 g
-BT /F3 8.5 Tf 1 0 0 1 52 698.89 Tm (  "conditions": {) Tj ET
-0.95 g 48 683.89 507.28 12 re f 0 g
-BT /F3 8.5 Tf 1 0 0 1 52 686.89 Tm (    "Area_name": "Delhi",) Tj ET
-0.95 g 48 671.89 507.28 12 re f 0 g
-BT /F3 8.5 Tf 1 0 0 1 52 674.89 Tm (    "Year": 2001) Tj ET
-0.95 g 48 659.89 507.28 12 re f 0 g
-BT /F3 8.5 Tf 1 0 0 1 52 662.89 Tm (  }) Tj ET
-0.95 g 48 647.89 507.28 12 re f 0 g
-BT /F3 8.5 Tf 1 0 0 1 52 650.89 Tm (}) Tj ET
-BT /F1 10.5 Tf 1 0 0 1 48 631.89 Tm (The same confirmMultiple rule applies. Deletion is transactional and the complete) Tj ET
-BT /F1 10.5 Tf 1 0 0 1 48 617.89 Tm (pre-delete rows are stored in the audit log.) Tj ET
-BT /F2 12 Tf 1 0 0 1 48 590.89 Tm (Read audit logs) Tj ET
-BT /F1 10.5 Tf 1 0 0 1 58 571.89 Tm (- GET /admin/audit-logs?page=1&limit=20 - list audit records, newest first.) Tj ET
-BT /F1 10.5 Tf 1 0 0 1 58 556.89 Tm (- GET /admin/audit-logs/:id - return one complete audit record.) Tj ET
-BT /F1 10.5 Tf 1 0 0 1 48 541.89 Tm (Supported list filters:) Tj ET
-BT /F1 10.5 Tf 1 0 0 1 58 522.89 Tm (- tableName \(or table\)) Tj ET
-BT /F1 10.5 Tf 1 0 0 1 58 507.89 Tm (- action=INSERT|UPDATE|DELETE) Tj ET
-BT /F1 10.5 Tf 1 0 0 1 58 492.89 Tm (- adminId) Tj ET
-BT /F1 10.5 Tf 1 0 0 1 58 477.89 Tm (- from and to as ISO dates \(YYYY-MM-DD or a full ISO timestamp\)) Tj ET
-BT /F1 10.5 Tf 1 0 0 1 48 462.89 Tm (Each audit record contains the admin id and username, table, row identifier, action type,) Tj ET
-BT /F1 10.5 Tf 1 0 0 1 48 448.89 Tm (old JSON snapshot, new JSON snapshot, changed columns, IP address, and creation) Tj ET
-BT /F1 10.5 Tf 1 0 0 1 48 434.89 Tm (timestamp. Audit writes are part of the same transaction as the dataset mutation, so a) Tj ET
-BT /F1 10.5 Tf 1 0 0 1 48 420.89 Tm (failed audit insert rolls back the data change.) Tj ET
-BT /F2 15 Tf 1 0 0 1 48 393.89 Tm (Redis cache) Tj ET
-0.95 g 44 365.89 507.28 12 re f 0 g
-BT /F2 8.5 Tf 1 0 0 1 48 368.89 Tm (Key | Endpoint | TTL) Tj ET
-BT /F3 8 Tf 1 0 0 1 48 356.89 Tm (all_tables | GET /tables | 30 minutes) Tj ET
-BT /F3 8 Tf 1 0 0 1 48 344.89 Tm (schema_{table} | GET /tables/:table/schema | 1 hour) Tj ET
-BT /F3 8 Tf 1 0 0 1 48 332.89 Tm (analytics_overview | GET /analytics/overview | 5 minutes) Tj ET
-BT /F2 15 Tf 1 0 0 1 48 306.89 Tm (HTTP status codes) Tj ET
-BT /F1 10.5 Tf 1 0 0 1 58 281.89 Tm (- 200 - successful request) Tj ET
-BT /F1 10.5 Tf 1 0 0 1 58 266.89 Tm (- 201 - resource created) Tj ET
-BT /F1 10.5 Tf 1 0 0 1 58 251.89 Tm (- 400 - invalid request, column, value, or filter) Tj ET
-BT /F1 10.5 Tf 1 0 0 1 58 236.89 Tm (- 401 - missing or invalid access token) Tj ET
-BT /F1 10.5 Tf 1 0 0 1 58 221.89 Tm (- 403 - authenticated user lacks admin access or admin is inactive) Tj ET
-BT /F1 10.5 Tf 1 0 0 1 58 206.89 Tm (- 404 - dataset table, column, or audit log not found) Tj ET
-BT /F1 10.5 Tf 1 0 0 1 58 191.89 Tm (- 409 - multiple matching rows require explicit confirmation) Tj ET
-BT /F1 10.5 Tf 1 0 0 1 58 176.89 Tm (- 429 - rate limit exceeded when the limiter is enabled) Tj ET
-BT /F1 10.5 Tf 1 0 0 1 58 161.89 Tm (- 500 - unexpected server error) Tj ET
-BT /F2 15 Tf 1 0 0 1 48 138.89 Tm (Frontend integration notes) Tj ET
-BT /F1 10.5 Tf 1 0 0 1 58 113.88999999999999 Tm (- Store access and refresh tokens securely.) Tj ET
-BT /F1 10.5 Tf 1 0 0 1 58 98.88999999999999 Tm (- Send the access token in the Authorization header.) Tj ET
-BT /F1 10.5 Tf 1 0 0 1 58 83.88999999999999 Tm (- Use schema responses to render dynamic dataset columns.) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 760.89 Tm (The row object identifies the existing row by its current column values. The request) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 746.89 Tm (changes only the named column and succeeds only when exactly one row matches. If the) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 732.89 Tm (selector matches multiple rows, it returns 409 and no data or audit record is written.) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 718.89 Tm (PUT /admin/table/:table/row is an equivalent method alias for clients that do not use) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 704.89 Tm (PATCH.) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 685.89 Tm (Dataset tables currently do not expose primary-key columns, so the frontend should send) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 671.89 Tm (enough current row values to identify one row. The response includes the changed column,) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 657.89 Tm (old value, new value, updated row, and auditLogId.) Tj ET
+BT /F2 12 Tf 1 0 0 1 48 630.89 Tm (Delete one selected row) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 611.89 Tm (DELETE /admin/table/:table/row) Tj ET
+0.95 g 48 585.89 507.28 12 re f 0 g
+BT /F3 8.5 Tf 1 0 0 1 52 588.89 Tm ({) Tj ET
+0.95 g 48 573.89 507.28 12 re f 0 g
+BT /F3 8.5 Tf 1 0 0 1 52 576.89 Tm (  "row": {) Tj ET
+0.95 g 48 561.89 507.28 12 re f 0 g
+BT /F3 8.5 Tf 1 0 0 1 52 564.89 Tm (    "Area_name": "Delhi",) Tj ET
+0.95 g 48 549.89 507.28 12 re f 0 g
+BT /F3 8.5 Tf 1 0 0 1 52 552.89 Tm (    "Year": 2001,) Tj ET
+0.95 g 48 537.89 507.28 12 re f 0 g
+BT /F3 8.5 Tf 1 0 0 1 52 540.89 Tm (    "Group_Name": "AT1-Motor Cycles/ Scooters",) Tj ET
+0.95 g 48 525.89 507.28 12 re f 0 g
+BT /F3 8.5 Tf 1 0 0 1 52 528.89 Tm (    "Sub_Group_Name": "1. Motor Cycles/ Scooters") Tj ET
+0.95 g 48 513.89 507.28 12 re f 0 g
+BT /F3 8.5 Tf 1 0 0 1 52 516.89 Tm (  }) Tj ET
+0.95 g 48 501.89 507.28 12 re f 0 g
+BT /F3 8.5 Tf 1 0 0 1 52 504.89 Tm (}) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 485.89 Tm (Deletion also requires exactly one match. The response includes the deleted row and) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 471.89 Tm (auditLogId; the complete pre-delete row is stored in the audit log.) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 452.89 Tm (There are no exposed bulk update or bulk delete routes. Every mutation is a single-row) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 438.89 Tm (operation.) Tj ET
+BT /F2 12 Tf 1 0 0 1 48 411.89 Tm (Read audit logs) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 392.89 Tm (- GET /admin/audit-logs?page=1&limit=20 - list audit records, newest first.) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 377.89 Tm (- GET /admin/audit-logs/:id - return one complete audit record.) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 362.89 Tm (Supported list filters:) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 343.89 Tm (- tableName \(or table\)) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 328.89 Tm (- action=INSERT|UPDATE|DELETE) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 313.89 Tm (- adminId) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 298.89 Tm (- from and to as ISO dates \(YYYY-MM-DD or a full ISO timestamp\)) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 283.89 Tm (Each audit record contains the admin id and username, table, row identifier, action type,) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 269.89 Tm (old JSON snapshot, new JSON snapshot, changed columns, IP address, and creation) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 255.89 Tm (timestamp. Audit writes are part of the same transaction as the dataset mutation, so a) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 241.89 Tm (failed audit insert rolls back the data change.) Tj ET
+BT /F2 15 Tf 1 0 0 1 48 214.89 Tm (Redis cache) Tj ET
+0.95 g 44 186.89 507.28 12 re f 0 g
+BT /F2 8.5 Tf 1 0 0 1 48 189.89 Tm (Key | Endpoint | TTL) Tj ET
+BT /F3 8 Tf 1 0 0 1 48 177.89 Tm (all_tables | GET /tables | 30 minutes) Tj ET
+BT /F3 8 Tf 1 0 0 1 48 165.89 Tm (schema_{table} | GET /tables/:table/schema | 1 hour) Tj ET
+BT /F3 8 Tf 1 0 0 1 48 153.89 Tm (analytics_overview | GET /analytics/overview | 5 minutes) Tj ET
+BT /F2 15 Tf 1 0 0 1 48 127.88999999999999 Tm (HTTP status codes) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 102.88999999999999 Tm (- 200 - successful request) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 87.88999999999999 Tm (- 201 - resource created) Tj ET
 BT /F1 8 Tf 1 0 0 1 505.28 24 Tm (Page 3) Tj ET
 endstream
 endobj
@@ -218,20 +216,31 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 10 0 R >>
 endobj
 12 0 obj
-<< /Length 915 >>
+<< /Length 1946 >>
 stream
-BT /F1 10.5 Tf 1 0 0 1 58 791.89 Tm (- Use pagination for every dataset and audit-log list.) Tj ET
-BT /F1 10.5 Tf 1 0 0 1 58 776.89 Tm (- Treat a 409 mutation response as a confirmation step before resubmitting with) Tj ET
-BT /F1 10.5 Tf 1 0 0 1 48 761.89 Tm (confirmMultiple: true.) Tj ET
-BT /F1 10.5 Tf 1 0 0 1 58 742.89 Tm (- Show the audit-log detail response when an administrator reviews a change.) Tj ET
-BT /F2 15 Tf 1 0 0 1 48 719.89 Tm (Local development) Tj ET
-0.95 g 48 687.89 507.28 12 re f 0 g
-BT /F3 8.5 Tf 1 0 0 1 52 690.89 Tm (cd backend) Tj ET
-0.95 g 48 675.89 507.28 12 re f 0 g
-BT /F3 8.5 Tf 1 0 0 1 52 678.89 Tm (npm install) Tj ET
-0.95 g 48 663.89 507.28 12 re f 0 g
-BT /F3 8.5 Tf 1 0 0 1 52 666.89 Tm (npm run dev) Tj ET
-BT /F1 10.5 Tf 1 0 0 1 48 647.89 Tm (Redis can be started with docker compose up -d or the command in docker_cmd.txt.) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 791.89 Tm (- 400 - invalid request, column, value, or filter) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 776.89 Tm (- 401 - missing or invalid access token) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 761.89 Tm (- 403 - authenticated user lacks admin access or admin is inactive) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 746.89 Tm (- 404 - dataset table, column, or audit log not found) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 731.89 Tm (- 409 - the selected row is not unique) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 716.89 Tm (- 429 - rate limit exceeded when the limiter is enabled) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 701.89 Tm (- 500 - unexpected server error) Tj ET
+BT /F2 15 Tf 1 0 0 1 48 678.89 Tm (Frontend integration notes) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 653.89 Tm (- Store access and refresh tokens securely.) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 638.89 Tm (- Send the access token in the Authorization header.) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 623.89 Tm (- Use schema responses to render dynamic dataset columns.) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 608.89 Tm (- Use pagination for every dataset and audit-log list.) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 593.89 Tm (- Treat a 409 mutation response as a request to add more current row fields to) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 578.89 Tm (the row selector; never retry it as a bulk mutation.) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 58 559.89 Tm (- Show the audit-log detail response when an administrator reviews a change.) Tj ET
+BT /F2 15 Tf 1 0 0 1 48 536.89 Tm (Local development) Tj ET
+0.95 g 48 504.89 507.28 12 re f 0 g
+BT /F3 8.5 Tf 1 0 0 1 52 507.89 Tm (cd backend) Tj ET
+0.95 g 48 492.89 507.28 12 re f 0 g
+BT /F3 8.5 Tf 1 0 0 1 52 495.89 Tm (npm install) Tj ET
+0.95 g 48 480.89 507.28 12 re f 0 g
+BT /F3 8.5 Tf 1 0 0 1 52 483.89 Tm (npm run dev) Tj ET
+BT /F1 10.5 Tf 1 0 0 1 48 464.89 Tm (Redis can be started with docker compose up -d or the command in docker_cmd.txt.) Tj ET
 BT /F1 8 Tf 1 0 0 1 505.28 24 Tm (Page 4) Tj ET
 endstream
 endobj
@@ -249,13 +258,13 @@ xref
 0000000354 00000 n 
 0000003914 00000 n 
 0000004066 00000 n 
-0000008733 00000 n 
-0000008885 00000 n 
-0000012893 00000 n 
-0000013047 00000 n 
-0000014014 00000 n 
+0000008446 00000 n 
+0000008598 00000 n 
+0000012965 00000 n 
+0000013119 00000 n 
+0000015118 00000 n 
 trailer
 << /Size 14 /Root 1 0 R >>
 startxref
-14168
+15272
 %%EOF

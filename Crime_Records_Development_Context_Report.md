@@ -74,25 +74,27 @@ Current behavior:
 
 Implemented APIs:
 
-- `PUT /api/admin/table/:table/update`
-- `DELETE /api/admin/table/:table/delete`
+- `PATCH /api/admin/table/:table/row`
+- `PUT /api/admin/table/:table/row` (method alias)
+- `DELETE /api/admin/table/:table/row`
 - `GET /api/admin/audit-logs`
 - `GET /api/admin/audit-logs/:id`
 
 Mutation behavior:
 
+- The single-row endpoint selects a row with the `row` object and refuses to
+  update or delete when zero or multiple rows match.
+- An update request changes exactly one named cell using `column` and `value`.
 - Only dataset tables can be modified; authentication, governance, analytics,
   metadata, notification, and upload tables are protected.
-- Condition and update fields must match real columns in the selected dataset.
+- Row selector and update columns must match real columns in the selected dataset.
 - SQL identifiers are escaped after schema validation.
 - Null conditions use SQL `IS NULL` semantics.
 - Matching rows are locked with `SELECT ... FOR UPDATE`.
 - Dataset mutation and audit insertion run in the same MySQL transaction.
 - If audit logging fails, the dataset change is rolled back.
-- A condition matching multiple rows returns `409` until the caller sends
-  `confirmMultiple: true`.
-- Update requests use `newData`; the existing `updateData` name remains a
-  compatibility alias.
+- A selector matching multiple rows returns `409`; the caller must provide more
+  current row fields.
 
 Audit records capture:
 
@@ -197,7 +199,7 @@ Implemented:
 - Dynamic column allow-listing
 - Parameterized values in dynamic SQL
 - Transactional audit logging
-- Explicit bulk-mutation confirmation
+- Single-row, single-cell mutation boundaries
 - Generic server errors without returning raw SQL details
 
 The in-memory rate-limiter middleware exists but is not yet mounted globally.
@@ -269,9 +271,8 @@ docker run -d --name crime-redis -p 6379:6379 redis:7
 ## Frontend handoff notes
 
 - Use the dataset schema endpoint to build editable table columns dynamically.
-- Submit updates with `conditions` and `newData`.
-- On a `409` response, show the matched-row count and require administrator
-  confirmation before resubmitting with `confirmMultiple: true`.
+- Submit cell updates with `row`, `column`, and `value`.
+- On a `409` response, ask for more current row fields before retrying.
 - Use the audit list endpoint for the governance activity table.
 - Use the audit detail endpoint to display old values, new values, changed
   columns, actor, IP address, and timestamp.

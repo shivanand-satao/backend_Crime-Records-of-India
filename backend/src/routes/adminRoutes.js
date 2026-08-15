@@ -1,52 +1,40 @@
-
 const express = require('express');
 
 const router = express.Router();
-
-const authMiddleware =
-require('../middleware/authMiddleware');
-
-const adminMiddleware =
-require('../middleware/adminMiddleware');
-
+const authMiddleware = require('../middleware/authMiddleware');
+const adminMiddleware = require('../middleware/adminMiddleware');
 const {
-    updateTableRows,
-    deleteTableRows,
+    updateTableCell,
+    deleteTableRow,
     getAuditLogs,
     getAuditLogById
 } = require('../controllers/admin/adminController');
 
-
-// =====================================
-// UPDATE ROW
-// =====================================
-
-
-router.put(
-    '/admin/table/:table/update',
+// Admins use the normal authenticated dataset routes to view tables and rows.
+// These mutation routes operate on only one selected row at a time.
+router.patch(
+    '/admin/table/:table/row',
     authMiddleware,
     adminMiddleware,
-    updateTableRows
+    updateTableCell
 );
 
-
-
-// =====================================
-// DELETE ROWS
-// =====================================
+// PUT is retained as a method-compatible alias for clients that do not use PATCH.
+router.put(
+    '/admin/table/:table/row',
+    authMiddleware,
+    adminMiddleware,
+    updateTableCell
+);
 
 router.delete(
-    '/admin/table/:table/delete',
+    '/admin/table/:table/row',
     authMiddleware,
     adminMiddleware,
-    deleteTableRows
+    deleteTableRow
 );
 
-
-// =====================================
-// AUDIT LOGS
-// =====================================
-
+// Audit activity is visible to authenticated administrators.
 router.get(
     '/admin/audit-logs',
     authMiddleware,
@@ -60,6 +48,5 @@ router.get(
     adminMiddleware,
     getAuditLogById
 );
-
 
 module.exports = router;

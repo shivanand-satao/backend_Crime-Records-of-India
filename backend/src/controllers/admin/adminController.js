@@ -53,16 +53,6 @@ const sendControllerError = (res, error, fallbackMessage) => {
     });
 };
 
-const requireBulkConfirmation = (rows, confirmMultiple) => {
-    if (rows.length > 1 && confirmMultiple !== true) {
-        const error = new Error(
-            `Conditions matched ${rows.length} rows. Resubmit with confirmMultiple set to true.`
-        );
-        error.statusCode = 409;
-        throw error;
-    }
-};
-
 const insertAuditLog = async ({
     connection,
     req,
@@ -105,171 +95,201 @@ const insertAuditLog = async ({
     return result.insertId;
 };
 
-// Update dataset rows and their audit record as one transaction.
-const updateTableRows = async (req, res) => {
+const getSingleSelectedRow = async ({
+    connection,
+    schema,
+    table,
+    row
+}) => {
+    const tableIdentifier = connection.escapeId(table);
+    const where = buildWhereClause(connection, row);
+    const [rows] = await connection.query(
+        `SELECT * FROM ${tableIdentifier} WHERE ${where.sql} FOR UPDATE`,
+        where.values
+    );
+
+    if (rows.length === 0) {
+        const error = new Error('Selected row was not found');
+        error.statusCode = 404;
+        throw error;
+    }
+
+    if (rows.length > 1) {
+        const error = new Error(
+            'The row selector matched multiple rows. Send more current column values.'
+        );
+        error.statusCode = 409;
+        throw error;
+    }
+
+    return {
+        tableIdentifier,
+        where,
+        row: rows[0],
+        rowIdentifier: getRowIdentifier(schema, rows[0], row)
+    };
+};
+
+const validateSelectedRowRequest = async (connection, table, row) => {
+    validateRecord(row, 'row');
+
+    const schema = await getDatasetTableSchema(connection, table);
+
+    if (!schema) {
+        const error = new Error('Dataset table not found');
+        error.statusCode = 404;
+        throw error;
+    }
+
+    validateColumns(schema, row, 'row');
+    return schema;
+};
+
+// Update one cell in exactly one selected dataset row.
+const updateTableCell = async (req, res) => {
     let connection;
 
     try {
         const { table } = req.params;
         const body = req.body || {};
-        const { conditions, confirmMultiple = false } = body;
+        const row = body.row;
 
-        if (body.newData !== undefined && body.updateData !== undefined) {
+        if (typeof body.column !== 'string' || body.column.length === 0) {
             return res.status(400).json({
                 success: false,
-                message: 'Send either newData or updateData, not both'
+                message: 'column is required'
             });
         }
 
-        const updateData = body.newData ?? body.updateData;
+        if (!Object.prototype.hasOwnProperty.call(body, 'value')) {
+            return res.status(400).json({
+                success: false,
+                message: 'value is required'
+            });
+        }
 
-        validateRecord(conditions, 'conditions');
-        validateRecord(updateData, 'newData');
+        validateRecord(row, 'row');
+        validateRecord({ [body.column]: body.value }, 'cell update');
 
         connection = await pool.getConnection();
         await connection.beginTransaction();
 
-        const schema = await getDatasetTableSchema(connection, table);
+        const schema = await validateSelectedRowRequest(connection, table, row);
+        validateColumns(schema, { [body.column]: body.value }, 'update');
 
-        if (!schema) {
-            const error = new Error('Dataset table not found');
-            error.statusCode = 404;
-            throw error;
-        }
-
-        validateColumns(schema, conditions, 'condition');
-        validateColumns(schema, updateData, 'update');
-
-        const tableIdentifier = connection.escapeId(table);
-        const where = buildWhereClause(connection, conditions);
-
-        const [oldRows] = await connection.query(
-            `SELECT * FROM ${tableIdentifier} WHERE ${where.sql} FOR UPDATE`,
-            where.values
-        );
-
-        if (oldRows.length === 0) {
-            const error = new Error('No matching rows found');
-            error.statusCode = 404;
-            throw error;
-        }
-
-        requireBulkConfirmation(oldRows, confirmMultiple);
-
-        const update = buildUpdateClause(connection, updateData);
+        const selected = await getSingleSelectedRow({
+            connection,
+            schema,
+            table,
+            row
+        });
+        const update = buildUpdateClause(connection, {
+            [body.column]: body.value
+        });
         const [result] = await connection.query(
-            `UPDATE ${tableIdentifier} SET ${update.sql} WHERE ${where.sql}`,
-            [...update.values, ...where.values]
+            `UPDATE ${selected.tableIdentifier} SET ${update.sql} WHERE ${selected.where.sql}`,
+            [...update.values, ...selected.where.values]
         );
 
-        const newRows = oldRows.map(row => ({
-            ...row,
-            ...updateData
-        }));
-        const rowIdentifier = oldRows.length === 1
-            ? getRowIdentifier(schema, oldRows[0], conditions)
-            : JSON.stringify(conditions).slice(0, 100);
+        if ((result.changedRows ?? 0) === 0) {
+            await connection.rollback();
 
+            return res.status(200).json({
+                success: true,
+                changed: false,
+                message: 'Cell already contains the requested value',
+                table,
+                column: body.column,
+                row: selected.row,
+                auditLogId: null
+            });
+        }
+
+        const updatedRow = {
+            ...selected.row,
+            [body.column]: body.value
+        };
         const auditLogId = await insertAuditLog({
             connection,
             req,
             table,
-            rowIdentifier,
+            rowIdentifier: selected.rowIdentifier,
             action: 'UPDATE',
-            oldData: oldRows,
-            newData: newRows,
-            changedColumns: update.keys
+            oldData: [selected.row],
+            newData: [updatedRow],
+            changedColumns: [body.column]
         });
 
         await connection.commit();
 
         return res.status(200).json({
             success: true,
-            message: 'Dataset rows updated successfully',
-            matchedRows: oldRows.length,
-            affectedRows: result.affectedRows,
-            changedRows: result.changedRows ?? result.affectedRows,
+            changed: true,
+            message: 'Cell updated successfully',
+            table,
+            column: body.column,
+            oldValue: selected.row[body.column],
+            newValue: body.value,
+            row: updatedRow,
             auditLogId
         });
     } catch (error) {
         await rollbackQuietly(connection);
-        return sendControllerError(res, error, 'Failed to update dataset rows');
+        return sendControllerError(res, error, 'Failed to update cell');
     } finally {
         connection?.release();
     }
 };
 
-// Delete dataset rows and preserve their complete pre-delete state in the audit log.
-const deleteTableRows = async (req, res) => {
+// Delete exactly one selected dataset row.
+const deleteTableRow = async (req, res) => {
     let connection;
 
     try {
         const { table } = req.params;
-        const {
-            conditions,
-            confirmMultiple = false
-        } = req.body || {};
+        const body = req.body || {};
+        const row = body.row;
 
-        validateRecord(conditions, 'conditions');
+        validateRecord(row, 'row');
 
         connection = await pool.getConnection();
         await connection.beginTransaction();
 
-        const schema = await getDatasetTableSchema(connection, table);
-
-        if (!schema) {
-            const error = new Error('Dataset table not found');
-            error.statusCode = 404;
-            throw error;
-        }
-
-        validateColumns(schema, conditions, 'condition');
-
-        const tableIdentifier = connection.escapeId(table);
-        const where = buildWhereClause(connection, conditions);
-        const [oldRows] = await connection.query(
-            `SELECT * FROM ${tableIdentifier} WHERE ${where.sql} FOR UPDATE`,
-            where.values
-        );
-
-        if (oldRows.length === 0) {
-            const error = new Error('No matching rows found');
-            error.statusCode = 404;
-            throw error;
-        }
-
-        requireBulkConfirmation(oldRows, confirmMultiple);
-
+        const schema = await validateSelectedRowRequest(connection, table, row);
+        const selected = await getSingleSelectedRow({
+            connection,
+            schema,
+            table,
+            row
+        });
         const [result] = await connection.query(
-            `DELETE FROM ${tableIdentifier} WHERE ${where.sql}`,
-            where.values
+            `DELETE FROM ${selected.tableIdentifier} WHERE ${selected.where.sql}`,
+            selected.where.values
         );
-        const rowIdentifier = oldRows.length === 1
-            ? getRowIdentifier(schema, oldRows[0], conditions)
-            : JSON.stringify(conditions).slice(0, 100);
-
         const auditLogId = await insertAuditLog({
             connection,
             req,
             table,
-            rowIdentifier,
+            rowIdentifier: selected.rowIdentifier,
             action: 'DELETE',
-            oldData: oldRows,
+            oldData: [selected.row],
             newData: null,
-            changedColumns: schema.columns.map(column => column.COLUMN_NAME)
+            changedColumns: Object.keys(selected.row)
         });
 
         await connection.commit();
 
         return res.status(200).json({
             success: true,
-            message: 'Dataset rows deleted successfully',
+            message: 'Row deleted successfully',
+            table,
             deletedRows: result.affectedRows,
+            deletedRow: selected.row,
             auditLogId
         });
     } catch (error) {
         await rollbackQuietly(connection);
-        return sendControllerError(res, error, 'Failed to delete dataset rows');
+        return sendControllerError(res, error, 'Failed to delete row');
     } finally {
         connection?.release();
     }
@@ -283,7 +303,7 @@ const parsePositiveInteger = (value, fallback, maximum = Number.MAX_SAFE_INTEGER
     const parsed = Number(value);
 
     if (!Number.isInteger(parsed) || parsed < 1 || parsed > maximum) {
-        const error = new Error('Pagination values must be positive integers');
+        const error = new Error('Values must be positive integers');
         error.statusCode = 400;
         throw error;
     }
@@ -342,11 +362,7 @@ const normalizeAuditLog = log => {
 const getAuditLogs = async (req, res) => {
     try {
         const page = parsePositiveInteger(req.query.page, 1);
-        const limit = parsePositiveInteger(
-            req.query.limit,
-            20,
-            MAX_AUDIT_PAGE_SIZE
-        );
+        const limit = parsePositiveInteger(req.query.limit, 20, MAX_AUDIT_PAGE_SIZE);
         const offset = (page - 1) * limit;
         const clauses = [];
         const values = [];
@@ -379,9 +395,8 @@ const getAuditLogs = async (req, res) => {
         }
 
         if (req.query.adminId !== undefined) {
-            const adminId = parsePositiveInteger(req.query.adminId);
             clauses.push('admin_id = ?');
-            values.push(adminId);
+            values.push(parsePositiveInteger(req.query.adminId));
         }
 
         const from = normalizeAuditDate(req.query.from);
@@ -487,8 +502,8 @@ const getAuditLogById = async (req, res) => {
 };
 
 module.exports = {
-    updateTableRows,
-    deleteTableRows,
+    updateTableCell,
+    deleteTableRow,
     getAuditLogs,
     getAuditLogById
 };
