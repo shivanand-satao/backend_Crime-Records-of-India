@@ -91,7 +91,8 @@ Mutation behavior:
 - SQL identifiers are escaped after schema validation.
 - Null conditions use SQL `IS NULL` semantics.
 - Matching rows are locked with `SELECT ... FOR UPDATE`.
-- Dataset mutation and audit insertion run in the same MySQL transaction.
+- The backend sets admin identity and IP in transaction-local PostgreSQL settings.
+- A PostgreSQL trigger writes the audit record in the dataset mutation transaction.
 - If audit logging fails, the dataset change is rolled back.
 - A selector matching multiple rows returns `409`; the caller must provide more
   current row fields.
@@ -208,9 +209,8 @@ The in-memory rate-limiter middleware exists but is not yet mounted globally.
 
 - `npm test` passes all dataset-table safety tests.
 - JavaScript syntax checks pass for changed source files.
-- Live MySQL schema discovery succeeds.
-- A live update plus audit insert was executed inside a transaction and rolled
-  back successfully, leaving no verification data behind.
+- PostgreSQL trigger handoff is covered by focused controller tests.
+- Live trigger execution should be verified through Supabase after deployment.
 - The live check covered the `Auto_Theft_Coordinated/Traced` column to verify
   safe handling of unusual identifier characters.
 - System-table guards were verified for lowercase and uppercase direct access.

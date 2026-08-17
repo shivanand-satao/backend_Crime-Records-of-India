@@ -282,7 +282,8 @@ Supported list filters:
 Each audit record contains the admin id and username, table, row identifier,
 action type, old JSON snapshot, new JSON snapshot, changed columns, IP address,
 and creation timestamp. Audit writes are part of the same transaction as the
-dataset mutation, so a failed audit insert rolls back the data change.
+dataset mutation. A PostgreSQL trigger creates the audit record from
+transaction-local admin context, so a trigger failure rolls back the data change.
 
 ## Redis cache
 

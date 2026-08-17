@@ -4,8 +4,7 @@ const {
     validateRecord,
     validateColumns,
     buildWhereClause,
-    buildUpdateClause,
-    getRowIdentifier
+    buildUpdateClause
 } = require('../../services/datasetTableService');
 
 const MAX_AUDIT_PAGE_SIZE = 100;
@@ -59,52 +58,42 @@ const sendControllerError = (res, error, fallbackMessage) => {
     });
 };
 
-const insertAuditLog = async ({
-    connection,
-    req,
-    table,
-    rowIdentifier,
-    action,
-    oldData,
-    newData,
-    changedColumns
-}) => {
-    const [result] = await connection.query(
+const setAuditContext = async (connection, req) => {
+    await connection.query(
         `
-        INSERT INTO admin_modification_logs
-        (
-            admin_id,
-            admin_username,
-            table_name,
-            row_id,
-            action_type,
-            old_data,
-            new_data,
-            changed_columns,
-            ip_address
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        RETURNING id
+        SELECT
+            set_config('app.audit_enabled', ?, true),
+            set_config('app.admin_id', ?, true),
+            set_config('app.admin_username', ?, true),
+            set_config('app.ip_address', ?, true)
         `,
         [
-            req.user.id,
-            req.user.username,
-            table,
-            rowIdentifier,
-            action,
-            oldData === null ? null : JSON.stringify(oldData),
-            newData === null ? null : JSON.stringify(newData),
-            JSON.stringify(changedColumns),
-            req.ip || req.socket?.remoteAddress || null
+            'on',
+            String(req.user.id),
+            req.user.username || '',
+            req.ip || req.socket?.remoteAddress || ''
         ]
     );
+};
 
-    return result.insertId;
+const getTriggerAuditLogId = async connection => {
+    const [rows] = await connection.query(
+        `
+        SELECT NULLIF(
+            current_setting('app.audit_log_id', true),
+            ''
+        ) AS audit_log_id
+        `
+    );
+
+    const auditLogId = rows[0]?.audit_log_id;
+    return auditLogId === null || auditLogId === undefined
+        ? null
+        : Number(auditLogId);
 };
 
 const getSingleSelectedRow = async ({
     connection,
-    schema,
     table,
     row
 }) => {
@@ -132,8 +121,7 @@ const getSingleSelectedRow = async ({
     return {
         tableIdentifier,
         where,
-        row: rows[0],
-        rowIdentifier: getRowIdentifier(schema, rows[0], row)
+        row: rows[0]
     };
 };
 
@@ -180,13 +168,13 @@ const updateTableCell = async (req, res) => {
 
         connection = await pool.getConnection();
         await connection.beginTransaction();
+        await setAuditContext(connection, req);
 
         const schema = await validateSelectedRowRequest(connection, table, row);
         validateColumns(schema, { [body.column]: body.value }, 'update');
 
         const selected = await getSingleSelectedRow({
             connection,
-            schema,
             table,
             row
         });
@@ -194,8 +182,13 @@ const updateTableCell = async (req, res) => {
             [body.column]: body.value
         });
         const [result] = await connection.query(
-            `UPDATE ${selected.tableIdentifier} SET ${update.sql} WHERE ${selected.where.sql}`,
-            [...update.values, ...selected.where.values]
+            `
+            UPDATE ${selected.tableIdentifier}
+            SET ${update.sql}
+            WHERE ${selected.where.sql}
+              AND ${connection.escapeId(body.column)} IS DISTINCT FROM ?
+            `,
+            [...update.values, ...selected.where.values, body.value]
         );
 
         if ((result.changedRows ?? 0) === 0) {
@@ -216,16 +209,7 @@ const updateTableCell = async (req, res) => {
             ...selected.row,
             [body.column]: body.value
         };
-        const auditLogId = await insertAuditLog({
-            connection,
-            req,
-            table,
-            rowIdentifier: selected.rowIdentifier,
-            action: 'UPDATE',
-            oldData: [selected.row],
-            newData: [updatedRow],
-            changedColumns: [body.column]
-        });
+        const auditLogId = await getTriggerAuditLogId(connection);
 
         await connection.commit();
 
@@ -261,11 +245,11 @@ const deleteTableRow = async (req, res) => {
 
         connection = await pool.getConnection();
         await connection.beginTransaction();
+        await setAuditContext(connection, req);
 
-        const schema = await validateSelectedRowRequest(connection, table, row);
+        await validateSelectedRowRequest(connection, table, row);
         const selected = await getSingleSelectedRow({
             connection,
-            schema,
             table,
             row
         });
@@ -273,16 +257,7 @@ const deleteTableRow = async (req, res) => {
             `DELETE FROM ${selected.tableIdentifier} WHERE ${selected.where.sql}`,
             selected.where.values
         );
-        const auditLogId = await insertAuditLog({
-            connection,
-            req,
-            table,
-            rowIdentifier: selected.rowIdentifier,
-            action: 'DELETE',
-            oldData: [selected.row],
-            newData: null,
-            changedColumns: Object.keys(selected.row)
-        });
+        const auditLogId = await getTriggerAuditLogId(connection);
 
         await connection.commit();
 
