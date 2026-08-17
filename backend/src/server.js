@@ -6,6 +6,13 @@ const pool = require('./config/db');
 
 const PORT = process.env.PORT || 3001;
 
+app.get('/health', (req, res) => {
+    res.status(200).json({
+        status: 'OK',
+        message: 'Backend is running'
+    });
+});
+
 const startServer = async () => {
     try {
 
