@@ -20,8 +20,10 @@ const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 
-app.use(cors());
-
+app.use(cors({
+    origin: 'https://frontend-crime-records-of-india.vercel.app',
+    credentials: true
+}));
 app.use(helmet());
 
 app.use(morgan('dev'));
@@ -48,13 +50,6 @@ app.use('/api', analyticsRoutes);
 
 
 app.use('/api', adminRoutes);
-
-
-
-
-
-
-
 
 
 // =========================
