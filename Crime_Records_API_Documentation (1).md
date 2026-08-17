@@ -324,5 +324,4 @@ npm install
 npm run dev
 ```
 
-Redis can be started with `docker compose up -d` or the command in
-`docker_cmd.txt`.
+Configure the Upstash Redis connection with `REDIS_URL` in `backend/.env`.

@@ -17,7 +17,11 @@ const CLIENT_INPUT_DB_ERRORS = new Set([
     'ER_DATA_TOO_LONG',
     'ER_TRUNCATED_WRONG_VALUE_FOR_FIELD',
     'ER_WARN_DATA_OUT_OF_RANGE',
-    'WARN_DATA_TRUNCATED'
+    'WARN_DATA_TRUNCATED',
+    '23502',
+    '22001',
+    '22P02',
+    '22003'
 ]);
 
 const rollbackQuietly = async connection => {
@@ -80,6 +84,7 @@ const insertAuditLog = async ({
             ip_address
         )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        RETURNING id
         `,
         [
             req.user.id,
@@ -373,10 +378,10 @@ const getAdminUsers = async (req, res) => {
         if (search) {
             clauses.push(`
                 (
-                    username LIKE CONCAT('%', ?, '%')
-                    OR full_name LIKE CONCAT('%', ?, '%')
-                    OR email LIKE CONCAT('%', ?, '%')
-                    OR department LIKE CONCAT('%', ?, '%')
+                    username LIKE ('%' || ? || '%')
+                    OR full_name LIKE ('%' || ? || '%')
+                    OR email LIKE ('%' || ? || '%')
+                    OR department LIKE ('%' || ? || '%')
                 )
             `);
             values.push(search, search, search, search);
@@ -394,12 +399,9 @@ const getAdminUsers = async (req, res) => {
             pool.query(`
                 SELECT
                     COUNT(*) AS totalUsers,
-                    COALESCE(SUM(status = 'active'), 0) AS activeAccounts,
-                    COALESCE(
-                        SUM(last_login >= NOW() - INTERVAL 7 DAY),
-                        0
-                    ) AS activeInLast7Days,
-                    COALESCE(SUM(status = 'inactive'), 0) AS inactiveAccounts
+                    COUNT(*) FILTER (WHERE status = 'active') AS activeAccounts,
+                    COUNT(*) FILTER (WHERE last_login >= NOW() - INTERVAL '7 days') AS activeInLast7Days,
+                    COUNT(*) FILTER (WHERE status = 'inactive') AS inactiveAccounts
                 FROM users
             `),
             pool.query(
@@ -471,7 +473,7 @@ const getAdminSearchLogs = async (req, res) => {
         const values = [];
 
         if (username) {
-            clauses.push("username LIKE CONCAT('%', ?, '%')");
+            clauses.push("username LIKE ('%' || ? || '%')");
             values.push(username);
         }
 
@@ -493,20 +495,20 @@ const getAdminSearchLogs = async (req, res) => {
         ] = await Promise.all([
             pool.query('SELECT COUNT(*) AS totalSearches FROM search_logs'),
             pool.query(`
-                SELECT
-                    filter_values.keyword,
+                SELECT /* JSON_TABLE compatibility */
+                    filter_values.value AS keyword,
                     COUNT(*) AS total
                 FROM search_logs
-                JOIN JSON_TABLE(
-                    COALESCE(search_logs.search_filters, JSON_OBJECT()),
-                    '$.*' COLUMNS (
-                        keyword VARCHAR(255) PATH '$' NULL ON ERROR
-                    )
-                ) AS filter_values ON TRUE
-                WHERE filter_values.keyword IS NOT NULL
-                    AND TRIM(filter_values.keyword) <> ''
-                GROUP BY filter_values.keyword
-                ORDER BY total DESC, filter_values.keyword ASC
+                CROSS JOIN LATERAL jsonb_each_text(
+                    CASE
+                        WHEN search_logs.search_filters IS NULL THEN '{}'::jsonb
+                        ELSE search_logs.search_filters::jsonb
+                    END
+                ) AS filter_values(keyword, value)
+                WHERE filter_values.value IS NOT NULL
+                    AND TRIM(filter_values.value) <> ''
+                GROUP BY filter_values.value
+                ORDER BY total DESC, filter_values.value ASC
                 LIMIT 1
             `),
             pool.query(`

@@ -11,7 +11,7 @@ const startServer = async () => {
 
         const connection = await pool.getConnection();
 
-        console.log('MySQL Database Connected');
+        console.log('PostgreSQL Database Connected');
 
         connection.release();
 

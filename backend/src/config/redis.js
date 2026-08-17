@@ -2,11 +2,14 @@
 const redis = require('redis');
 require('dotenv').config();
 
-const redisHost = process.env.REDIS_HOST || 'localhost';
-const redisPort = process.env.REDIS_PORT || 6379;
+const redisUrl = process.env.REDIS_URL;
+
+if (!redisUrl) {
+    throw new Error('REDIS_URL is required');
+}
 
 const redisClient = redis.createClient({
-    url: `redis://${redisHost}:${redisPort}`
+    url: redisUrl
 });
 
 redisClient.on('error', (err) => {

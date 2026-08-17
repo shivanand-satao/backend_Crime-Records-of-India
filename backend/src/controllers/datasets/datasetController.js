@@ -68,7 +68,7 @@ const getAllTables = async (req, res) => {
             AND table_name NOT IN (${placeholders})
             ORDER BY table_name
             `,
-            [process.env.DB_NAME, ...excludedTables]
+            [process.env.DB_SCHEMA || 'public', ...excludedTables]
         );
         const formattedTables = tables.map(table => table.TABLE_NAME || table.table_name);
         const responseData = {

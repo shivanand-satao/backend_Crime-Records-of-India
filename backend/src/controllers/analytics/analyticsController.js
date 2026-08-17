@@ -30,7 +30,7 @@ if (cachedAnalytics) {
 }
 
 console.log(
-    'Fetching analytics from MySQL'
+    'Fetching analytics from PostgreSQL'
 );
 
 
@@ -83,7 +83,7 @@ console.log(
             AND table_name NOT IN (${placeholders})
             `,
             [
-                process.env.DB_NAME,
+                process.env.DB_SCHEMA || 'public',
                 ...excludedTables
             ]
         );
@@ -129,7 +129,7 @@ console.log(
             `
             SELECT COUNT(*) AS recentLogins
             FROM users
-            WHERE last_login >= NOW() - INTERVAL 7 DAY
+            WHERE last_login >= NOW() - INTERVAL '7 days'
             `
         );
 
@@ -161,7 +161,7 @@ const responseData = {
         mostViewedResult[0] || null,
 
     recentLogins:
-        recentUsers[0].recentLogins
+            recentUsers[0].recentLogins
 };
 
 

@@ -44,14 +44,14 @@ const getDatasetTableSchema = async (connection, tableName) => {
         AND table_name = ?
         AND table_type = 'BASE TABLE'
         `,
-        [process.env.DB_NAME, tableName]
+        [process.env.DB_SCHEMA || 'public', tableName]
     );
 
     if (tables.length === 0) {
         return null;
     }
 
-    const resolvedTableName = tables[0].TABLE_NAME || tables[0].table_name;
+    const resolvedTableName = tables[0].table_name;
 
     if (SYSTEM_TABLES.has(String(resolvedTableName).toLowerCase())) {
         return null;
@@ -60,18 +60,27 @@ const getDatasetTableSchema = async (connection, tableName) => {
     const [columns] = await connection.query(
         `
         SELECT
-            COLUMN_NAME,
-            DATA_TYPE,
-            COLUMN_TYPE,
-            IS_NULLABLE,
-            COLUMN_KEY,
-            EXTRA
-        FROM information_schema.columns
-        WHERE table_schema = ?
-        AND table_name = ?
-        ORDER BY ordinal_position
+            c.column_name AS "COLUMN_NAME",
+            c.data_type AS "DATA_TYPE",
+            c.is_nullable AS "IS_NULLABLE",
+            CASE WHEN EXISTS (
+                SELECT 1
+                FROM information_schema.key_column_usage k
+                JOIN information_schema.table_constraints t
+                  ON t.constraint_name = k.constraint_name
+                 AND t.table_schema = k.table_schema
+                 AND t.table_name = k.table_name
+                WHERE k.table_schema = c.table_schema
+                  AND k.table_name = c.table_name
+                  AND k.column_name = c.column_name
+                  AND t.constraint_type = 'PRIMARY KEY'
+            ) THEN 'PRI' ELSE '' END AS "COLUMN_KEY"
+        FROM information_schema.columns c
+        WHERE c.table_schema = ?
+        AND c.table_name = ?
+        ORDER BY c.ordinal_position
         `,
-        [process.env.DB_NAME, tableName]
+        [process.env.DB_SCHEMA || 'public', tableName]
     );
 
     return {

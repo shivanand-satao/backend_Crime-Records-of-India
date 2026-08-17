@@ -5,7 +5,7 @@ Last updated: August 15, 2026
 ## Project overview
 
 Crime Records of India is a dynamic crime-data analytics and governance backend
-built with Node.js, Express.js, MySQL, Redis, Docker, and JWT authentication.
+built with Node.js, Express.js, MySQL, Upstash Redis, and JWT authentication.
 
 The system currently supports:
 
@@ -22,9 +22,9 @@ The system currently supports:
 
 - Backend: Node.js and Express.js
 - Database: MySQL with `mysql2/promise`
-- Cache: Redis 7
+- Cache: Upstash Redis
 - Authentication: JWT access and refresh tokens, bcrypt password hashes
-- Infrastructure: Docker Compose for Redis; backend and MySQL run locally
+- Infrastructure: Upstash Redis; backend and MySQL run locally
 - Testing: Node.js built-in test runner
 
 ## Authentication system
@@ -147,7 +147,7 @@ Current cache keys:
 | `schema_{table}` | Dataset schema | 3600 seconds |
 | `analytics_overview` | Analytics overview | 300 seconds |
 
-Only Redis runs in Docker. The backend and MySQL run locally.
+Redis is hosted by Upstash and configured through `REDIS_URL`.
 
 ## Current database tables
 
@@ -232,17 +232,10 @@ cd backend
 npm test
 ```
 
-Redis with Docker Compose:
+Configure the Upstash Redis connection in `backend/.env`:
 
 ```text
-cd backend
-docker compose up -d
-```
-
-Alternative Redis command:
-
-```text
-docker run -d --name crime-redis -p 6379:6379 redis:7
+REDIS_URL=rediss://default:<password>@<host>:6379
 ```
 
 ## Project status
@@ -255,7 +248,7 @@ docker run -d --name crime-redis -p 6379:6379 redis:7
 - Transactional audit logging: working
 - Audit-log read APIs: working
 - Analytics: working
-- Redis cache integration: working when Redis is available
+- Upstash Redis cache integration: working
 - Admin frontend: pending
 
 ## Remaining work
@@ -265,7 +258,7 @@ docker run -d --name crime-redis -p 6379:6379 redis:7
 - Add request-schema validation middleware for non-dataset endpoints
 - Add user view-history APIs
 - Add OpenAPI/Swagger generation
-- Add deployment configuration and production Dockerization
+- Add production deployment configuration
 - Add broader HTTP integration tests with isolated test database fixtures
 
 ## Frontend handoff notes
