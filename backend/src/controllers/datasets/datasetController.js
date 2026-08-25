@@ -146,7 +146,6 @@ const getTableData = async (req, res) => {
         }
 
         const cacheKey = redisCache.datasetRowsKey(
-            `${req.user.role || 'user'}:${req.user.id}`,
             table,
             'list',
             { page, limit }
@@ -289,7 +288,6 @@ const searchTableData = async (req, res) => {
         }
 
         const cacheKey = redisCache.datasetRowsKey(
-            `${req.user.role || 'user'}:${req.user.id}`,
             table,
             'search',
             { filters, sortBy, sortOrder, page, limit }

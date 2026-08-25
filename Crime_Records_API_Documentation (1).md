@@ -291,11 +291,12 @@ transaction-local admin context, so a trigger failure rolls back the data change
 | --- | --- | --- |
 | `all_tables` | `GET /tables` | 30 minutes |
 | `schema_{table}` | `GET /tables/:table/schema` | 1 hour |
-| `dataset:rows:{identity}:{table}:list:{hash}` | `GET /data/:table` | 1 hour |
-| `dataset:rows:{identity}:{table}:search:{hash}` | `POST /data/:table/search` | 1 hour |
+| `dataset:rows:{table}:list:{hash}` | `GET /data/:table` | 1 hour |
+| `dataset:rows:{table}:search:{hash}` | `POST /data/:table/search` | 1 hour |
 | `analytics_overview` | `GET /analytics/overview` | 5 minutes |
 
-Dataset row caches are isolated by authenticated user. A successful admin
+Dataset row caches are shared by authenticated users and administrators because
+the current dataset response is the same for both roles. A successful admin
 update or delete invalidates every cached row response for that table after
 commit, including paginated and filtered variants. Redis failures are fail-open
 and the API continues using the database.

@@ -59,14 +59,14 @@ const stableValue = value => {
     return value;
 };
 
-const keySegment = value => Buffer.from(String(value)).toString('base64url');
-
-const datasetRowsKey = (userId, table, endpoint, input = {}) => {
+// Dataset rows are identical for every authenticated user and admin, so use
+// one shared cache entry per table, endpoint, and request parameters.
+const datasetRowsKey = (table, endpoint, input = {}) => {
     const digest = crypto
         .createHash('sha256')
         .update(JSON.stringify(stableValue(input)))
         .digest('hex');
-    return `dataset:rows:${keySegment(userId)}:${keySegment(table)}:${keySegment(endpoint)}:${digest}`;
+    return `dataset:rows:${table}:${endpoint}:${digest}`;
 };
 
 const invalidateDatasetTable = async table => {
@@ -74,7 +74,7 @@ const invalidateDatasetTable = async table => {
         if (!(await connect())) return 0;
         const keys = [];
         for await (const key of redisClient.scanIterator({
-            MATCH: `dataset:rows:*:${keySegment(table)}:*`,
+            MATCH: `dataset:rows:${table}:*`,
             COUNT: 100
         })) keys.push(key);
         return await del(keys);
