@@ -1,4 +1,5 @@
 const pool = require('../../config/db');
+const redisCache = require('../../services/redisCache');
 const {
     getDatasetTableSchema,
     validateRecord,
@@ -212,6 +213,7 @@ const updateTableCell = async (req, res) => {
         const auditLogId = await getTriggerAuditLogId(connection);
 
         await connection.commit();
+        await redisCache.invalidateDatasetTable(table);
 
         return res.status(200).json({
             success: true,
@@ -260,6 +262,7 @@ const deleteTableRow = async (req, res) => {
         const auditLogId = await getTriggerAuditLogId(connection);
 
         await connection.commit();
+        await redisCache.invalidateDatasetTable(table);
 
         return res.status(200).json({
             success: true,

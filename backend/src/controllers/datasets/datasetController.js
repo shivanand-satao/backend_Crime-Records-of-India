@@ -1,4 +1,4 @@
-const redisClient = require('../../config/redis');
+const redisCache = require('../../services/redisCache');
 const pool = require('../../config/db');
 const {
     SYSTEM_TABLES,
@@ -51,7 +51,7 @@ const sendDatasetError = (res, error, fallbackMessage) => {
 
 const getAllTables = async (req, res) => {
     try {
-        const cachedTables = await redisClient.get('all_tables');
+        const cachedTables = await redisCache.get('all_tables');
 
         if (cachedTables) {
             return res.status(200).json(JSON.parse(cachedTables));
@@ -77,7 +77,7 @@ const getAllTables = async (req, res) => {
             data: formattedTables
         };
 
-        await redisClient.set('all_tables', JSON.stringify(responseData), { EX: 1800 });
+        await redisCache.set('all_tables', JSON.stringify(responseData), 1800);
         return res.status(200).json(responseData);
     } catch (error) {
         return sendDatasetError(res, error, 'Failed to fetch tables');
@@ -99,7 +99,7 @@ const getTableSchema = async (req, res) => {
         }
 
         const cacheKey = `schema_${table}`;
-        const cachedSchema = await redisClient.get(cacheKey);
+        const cachedSchema = await redisCache.get(cacheKey);
 
         if (cachedSchema) {
             return res.status(200).json(JSON.parse(cachedSchema));
@@ -125,7 +125,7 @@ const getTableSchema = async (req, res) => {
             }))
         };
 
-        await redisClient.set(cacheKey, JSON.stringify(responseData), { EX: 3600 });
+        await redisCache.set(cacheKey, JSON.stringify(responseData), 3600);
         return res.status(200).json(responseData);
     } catch (error) {
         return sendDatasetError(res, error, 'Failed to fetch schema');
@@ -143,6 +143,25 @@ const getTableData = async (req, res) => {
                 success: false,
                 message: 'Dataset table not found'
             });
+        }
+
+        const cacheKey = redisCache.datasetRowsKey(
+            `${req.user.role || 'user'}:${req.user.id}`,
+            table,
+            'list',
+            { page, limit }
+        );
+        const cachedResponse = await redisCache.get(cacheKey);
+        if (cachedResponse) {
+            const responseData = JSON.parse(cachedResponse);
+            await pool.query(
+                `INSERT INTO views_log
+                (user_id, email, username, table_viewed, query_params, ip_address)
+                VALUES (?, ?, ?, ?, ?, ?)`,
+                [req.user.id, req.user.email || null, req.user.username, table,
+                    JSON.stringify({ page, limit }), req.ip]
+            );
+            return res.status(200).json(responseData);
         }
 
         const tableIdentifier = pool.escapeId(table);
@@ -171,7 +190,7 @@ const getTableData = async (req, res) => {
             ]
         );
 
-        return res.status(200).json({
+        const responseData = {
             success: true,
             table,
             page,
@@ -179,7 +198,9 @@ const getTableData = async (req, res) => {
             totalRecords,
             totalPages: Math.ceil(totalRecords / limit),
             data
-        });
+        };
+        await redisCache.set(cacheKey, JSON.stringify(responseData), 3600);
+        return res.status(200).json(responseData);
     } catch (error) {
         return sendDatasetError(res, error, 'Failed to fetch table data');
     }
@@ -267,6 +288,25 @@ const searchTableData = async (req, res) => {
             }
         }
 
+        const cacheKey = redisCache.datasetRowsKey(
+            `${req.user.role || 'user'}:${req.user.id}`,
+            table,
+            'search',
+            { filters, sortBy, sortOrder, page, limit }
+        );
+        const cachedResponse = await redisCache.get(cacheKey);
+        if (cachedResponse) {
+            const responseData = JSON.parse(cachedResponse);
+            await pool.query(
+                `INSERT INTO search_logs
+                (user_id, username, table_name, search_filters, result_count, user_ip, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                [req.user.id, req.user.username, table, JSON.stringify(filters),
+                    responseData.data?.length || 0, req.ip, 'success']
+            );
+            return res.status(200).json(responseData);
+        }
+
         const tableIdentifier = pool.escapeId(table);
         const clauses = [];
         const values = [];
@@ -321,7 +361,7 @@ const searchTableData = async (req, res) => {
             ]
         );
 
-        return res.status(200).json({
+        const responseData = {
             success: true,
             table,
             filters,
@@ -330,7 +370,9 @@ const searchTableData = async (req, res) => {
             totalRecords,
             totalPages: Math.ceil(totalRecords / limit),
             data
-        });
+        };
+        await redisCache.set(cacheKey, JSON.stringify(responseData), 3600);
+        return res.status(200).json(responseData);
     } catch (error) {
         return sendDatasetError(res, error, 'Failed to search table data');
     }

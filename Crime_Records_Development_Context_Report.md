@@ -146,7 +146,14 @@ Current cache keys:
 | --- | --- | --- |
 | `all_tables` | Dataset table list | 1800 seconds |
 | `schema_{table}` | Dataset schema | 3600 seconds |
+| `dataset:rows:{identity}:{table}:list:{hash}` | User-scoped paginated table rows | 3600 seconds |
+| `dataset:rows:{identity}:{table}:search:{hash}` | User-scoped filtered/sorted table rows | 3600 seconds |
 | `analytics_overview` | Analytics overview | 300 seconds |
+
+Row cache keys include the authenticated role and user id plus a stable hash of request
+parameters. Administrator row updates and deletes invalidate all row-cache
+variants for the affected table after the transaction commits. Redis is
+optional at runtime; cache failures fall back to PostgreSQL.
 
 Redis is hosted by Upstash and configured through `REDIS_URL`.
 

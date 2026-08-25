@@ -2,12 +2,14 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 
 const pool = require('../src/config/db');
+const redisCache = require('../src/services/redisCache');
 const {
     updateTableCell,
     deleteTableRow
 } = require('../src/controllers/admin/adminController');
 
 const originalGetConnection = pool.getConnection;
+const originalInvalidateDatasetTable = redisCache.invalidateDatasetTable;
 
 const invoke = async (handler, req) => {
     let response;
@@ -74,11 +76,14 @@ const createConnection = mutation => {
 
 test.afterEach(() => {
     pool.getConnection = originalGetConnection;
+    redisCache.invalidateDatasetTable = originalInvalidateDatasetTable;
 });
 
 test('admin update delegates auditing to the database trigger', async () => {
     const { connection, queries } = createConnection('UPDATE');
     pool.getConnection = async () => connection;
+    const invalidatedTables = [];
+    redisCache.invalidateDatasetTable = async table => invalidatedTables.push(table);
 
     const response = await invoke(updateTableCell, {
         params: { table: 'auto_theft' },
@@ -100,11 +105,14 @@ test('admin update delegates auditing to the database trigger', async () => {
     assert.ok(contextIndex >= 0 && contextIndex < updateIndex);
     assert.match(queries[updateIndex].sql, /IS DISTINCT FROM \?/);
     assert.deepEqual(queries[updateIndex].values, [2002, 1, 2002]);
+    assert.deepEqual(invalidatedTables, ['auto_theft']);
 });
 
 test('admin delete returns the audit ID created by the trigger', async () => {
     const { connection, queries } = createConnection('DELETE');
     pool.getConnection = async () => connection;
+    const invalidatedTables = [];
+    redisCache.invalidateDatasetTable = async table => invalidatedTables.push(table);
 
     const response = await invoke(deleteTableRow, {
         params: { table: 'auto_theft' },
@@ -120,4 +128,5 @@ test('admin delete returns the audit ID created by the trigger', async () => {
         queries.some(query => query.sql.includes('INSERT INTO admin_modification_logs')),
         false
     );
+    assert.deepEqual(invalidatedTables, ['auto_theft']);
 });

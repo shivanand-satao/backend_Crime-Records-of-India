@@ -1,4 +1,4 @@
-const redisClient = require('../../config/redis');
+const redisCache = require('../../services/redisCache');
 const pool = require('../../config/db');
 
 
@@ -14,7 +14,7 @@ const getAnalyticsOverview = async (req, res) => {
 // =====================================
 
 const cachedAnalytics =
-    await redisClient.get(
+    await redisCache.get(
         'analytics_overview'
     );
 
@@ -169,12 +169,10 @@ const responseData = {
 // STORE IN REDIS
 // =====================================
 
-await redisClient.set(
+await redisCache.set(
     'analytics_overview',
     JSON.stringify(responseData),
-    {
-        EX: 300
-    }
+    300
 );
 
 return res.status(200).json(
