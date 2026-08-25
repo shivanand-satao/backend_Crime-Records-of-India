@@ -209,6 +209,45 @@ DELETE /api/admin/table/:table/row
 After a successful update or delete, the backend invalidates every shared list
 and search cache entry for the affected table.
 
+### Exact update/delete lifecycle
+
+Suppose `auto_theft` has cached pages and searches, and an administrator changes
+one row. The cache lifecycle is:
+
+```text
+1. Admin sends PATCH, PUT, or DELETE for one row.
+2. The API authenticates the token and checks the admin role.
+3. The API starts a database transaction and sets the audit context.
+4. The database updates or deletes the row.
+5. The database trigger creates the audit record.
+6. The API commits the transaction.
+7. The API scans Redis for dataset:rows:auto_theft:*
+8. Redis deletes every matching list/search key.
+9. The admin receives the successful mutation response.
+10. The next user or admin read queries the database.
+11. The fresh response is stored in Redis under its shared key.
+12. Later identical reads receive that fresh value from Redis.
+```
+
+Before the change, Redis might contain:
+
+```text
+dataset:rows:auto_theft:list:<hash-for-page-1>
+dataset:rows:auto_theft:list:<hash-for-page-2>
+dataset:rows:auto_theft:search:<hash-for-filter-a>
+```
+
+After the committed admin change, all of those keys are removed by the pattern:
+
+```text
+dataset:rows:auto_theft:*
+```
+
+The backend does not manually edit a JSON value inside Redis. It deletes the
+old table cache and lets the next normal read rebuild it from the database. This
+ensures that pagination and search variants are rebuilt from the same current
+database state.
+
 ```mermaid
 sequenceDiagram
     actor Admin
@@ -241,8 +280,23 @@ data and stored once under the shared key. Keys created by older application
 versions are no longer read and expire naturally according to their original
 TTL.
 
-If an update makes no change because the cell already contains the requested
-value, the transaction is rolled back and the row caches are not invalidated.
+### Failure and no-op cases
+
+- If validation fails, the database operation never starts and Redis is not
+  changed.
+- If the database update/delete fails, the transaction is rolled back and Redis
+  is not invalidated.
+- If an update requests the value already present in the cell, the transaction
+  is rolled back and the existing row cache remains valid.
+- If the database commit succeeds but Redis is unavailable, the database change
+  still succeeds. The old Redis value can remain until its one-hour TTL expires;
+  the API logs the Redis error and continues operating from the database.
+- A direct SQL change made outside the API does not call
+  `invalidateDatasetTable()`. Its cached rows can remain until the TTL expires
+  or the keys are manually deleted.
+
+For consistent cache behavior, dataset mutations should always use the admin
+API endpoints rather than direct database writes.
 
 ## 8. What Administrative Invalidation Does Not Remove
 
@@ -278,7 +332,30 @@ provides these operations:
 API response objects are converted to JSON strings before storage and parsed
 back into objects on a cache hit.
 
-## 10. Security Rules
+## 10. Reading the Source Logs
+
+The dataset and analytics controllers log whether the response source was Redis
+or the database. Examples:
+
+```text
+[Redis HIT] GET /api/data/auto_theft key=dataset:rows:auto_theft:list:<hash>
+[DATABASE] GET /api/data/auto_theft source=Supabase/PostgreSQL reason=Redis MISS key=dataset:rows:auto_theft:list:<hash>
+[Redis HIT] POST /api/data/auto_theft/search key=dataset:rows:auto_theft:search:<hash>
+[DATABASE] GET /api/data/auto_theft/filter-options/Year source=Supabase/PostgreSQL reason=NOT CACHED
+[Redis HIT] GET /api/analytics/overview key=analytics_overview
+```
+
+`[Redis HIT]` means the response was read from Redis. `[DATABASE]` means the
+response was obtained from the database, either because Redis had a miss or
+because that endpoint is intentionally not cached. These logs are server-side;
+the API response body is unchanged.
+
+The HTTP access log may separately show `304 Not Modified`. That status is
+browser/Express ETag validation and does not identify the Redis source. Use the
+`[Redis HIT]` or `[DATABASE]` line immediately before it to determine where the
+backend obtained the response.
+
+## 11. Security Rules
 
 - A Redis key is an internal lookup name, not an access token.
 - Knowing a cache key does not bypass JWT or administrator authorization.
@@ -290,7 +367,7 @@ back into objects on a cache hit.
 - Use a TLS Redis URL (`rediss://`) in production when supported by the provider.
 - Set an appropriate Redis provider policy, password, and network restrictions.
 
-## 11. Troubleshooting
+## 12. Troubleshooting
 
 ### Requests work but no Redis keys appear
 
@@ -325,7 +402,7 @@ GET all_tables
 Cached values may contain dataset rows. Inspect them only in an authorized
 environment and avoid pasting production records into logs or support chats.
 
-## 12. Source Locations
+## 13. Source Locations
 
 - Redis client configuration: `backend/src/config/redis.js`
 - Cache helper and key generation: `backend/src/services/redisCache.js`
