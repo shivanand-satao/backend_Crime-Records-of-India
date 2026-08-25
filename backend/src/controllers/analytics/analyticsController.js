@@ -20,18 +20,14 @@ const cachedAnalytics =
 
 if (cachedAnalytics) {
 
-    console.log(
-        'Serving analytics from Redis cache'
-    );
+    console.log('[Redis HIT] GET /api/analytics/overview key=analytics_overview');
 
     return res.status(200).json(
         JSON.parse(cachedAnalytics)
     );
 }
 
-console.log(
-    'Fetching analytics from PostgreSQL'
-);
+console.log('[DATABASE] GET /api/analytics/overview source=Supabase/PostgreSQL reason=Redis MISS key=analytics_overview');
 
 
     try {

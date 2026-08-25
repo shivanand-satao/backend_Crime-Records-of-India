@@ -54,8 +54,11 @@ const getAllTables = async (req, res) => {
         const cachedTables = await redisCache.get('all_tables');
 
         if (cachedTables) {
+            console.log('[Redis HIT] GET /api/tables key=all_tables');
             return res.status(200).json(JSON.parse(cachedTables));
         }
+
+        console.log('[DATABASE] GET /api/tables source=Supabase/PostgreSQL reason=Redis MISS');
 
         const excludedTables = [...SYSTEM_TABLES];
         const placeholders = excludedTables.map(() => '?').join(',');
@@ -102,8 +105,11 @@ const getTableSchema = async (req, res) => {
         const cachedSchema = await redisCache.get(cacheKey);
 
         if (cachedSchema) {
+            console.log(`[Redis HIT] GET /api/tables/${table}/schema key=${cacheKey}`);
             return res.status(200).json(JSON.parse(cachedSchema));
         }
+
+        console.log(`[DATABASE] GET /api/tables/${table}/schema source=Supabase/PostgreSQL reason=Redis MISS key=${cacheKey}`);
 
         const schema = await getDatasetTableSchema(pool, table);
 
@@ -152,6 +158,7 @@ const getTableData = async (req, res) => {
         );
         const cachedResponse = await redisCache.get(cacheKey);
         if (cachedResponse) {
+            console.log(`[Redis HIT] GET /api/data/${table} key=${cacheKey}`);
             const responseData = JSON.parse(cachedResponse);
             await pool.query(
                 `INSERT INTO views_log
@@ -162,6 +169,8 @@ const getTableData = async (req, res) => {
             );
             return res.status(200).json(responseData);
         }
+
+        console.log(`[DATABASE] GET /api/data/${table} source=Supabase/PostgreSQL reason=Redis MISS key=${cacheKey}`);
 
         const tableIdentifier = pool.escapeId(table);
         const [countResult] = await pool.query(
@@ -208,6 +217,7 @@ const getTableData = async (req, res) => {
 const getFilterOptions = async (req, res) => {
     try {
         const { table, column } = req.params;
+        console.log(`[DATABASE] GET /api/data/${table}/filter-options/${column} source=Supabase/PostgreSQL reason=NOT CACHED`);
         const schema = await getDatasetTableSchema(pool, table);
 
         if (!schema) {
@@ -294,6 +304,7 @@ const searchTableData = async (req, res) => {
         );
         const cachedResponse = await redisCache.get(cacheKey);
         if (cachedResponse) {
+            console.log(`[Redis HIT] POST /api/data/${table}/search key=${cacheKey}`);
             const responseData = JSON.parse(cachedResponse);
             await pool.query(
                 `INSERT INTO search_logs
@@ -304,6 +315,8 @@ const searchTableData = async (req, res) => {
             );
             return res.status(200).json(responseData);
         }
+
+        console.log(`[DATABASE] POST /api/data/${table}/search source=Supabase/PostgreSQL reason=Redis MISS key=${cacheKey}`);
 
         const tableIdentifier = pool.escapeId(table);
         const clauses = [];
