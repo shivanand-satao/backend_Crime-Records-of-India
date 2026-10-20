@@ -111,7 +111,7 @@ test('server-side filtered search caches only the requested page', async () => {
             params: { table: 'auto_theft' },
             query: {},
             body: {
-                filters: { Area_name: 'Delhi' },
+                filters: { Area_name: 'Delhi', Year: 2001 },
                 page: 2,
                 limit: 10
             },
@@ -129,7 +129,7 @@ test('server-side filtered search caches only the requested page', async () => {
 
         const cacheKeyInput = cacheInputs.find(entry => entry.input)?.input;
         assert.deepEqual(cacheKeyInput, {
-            filters: { Area_name: 'Delhi' },
+            filters: { Area_name: 'Delhi', Year: 2001 },
             searchTerm: '',
             sortBy: null,
             sortOrder: 'ASC',
@@ -138,8 +138,8 @@ test('server-side filtered search caches only the requested page', async () => {
         });
 
         const selectQuery = queries.find(query => query.sql.startsWith('SELECT * FROM'));
-        assert.match(selectQuery.sql, /WHERE "Area_name" = \?/);
-        assert.deepEqual(selectQuery.values, ['Delhi', 10, 10]);
+        assert.match(selectQuery.sql, /WHERE "Area_name" = \? AND "Year" = \?/);
+        assert.deepEqual(selectQuery.values, ['Delhi', 2001, 10, 10]);
         assert.equal(cacheInputs.find(entry => entry.value)?.value.data.length, 1);
     } finally {
         pool.query = originalQuery;
