@@ -29,7 +29,7 @@ const parsePagination = (query = {}) => {
     return {
         page,
         limit,
-        offset: (page - 1) * limit
+        offset: 20
     };
 };
 
