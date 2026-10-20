@@ -11,7 +11,8 @@ const SYSTEM_TABLES = new Set([
     'admin_modification_logs',
     'response',
     'api_request_logs',
-    'upload_history'
+    'upload_history',
+    'chatbot_schema_catalog'
 ]);
 
 const isPlainObject = value => (
