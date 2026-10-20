@@ -267,6 +267,7 @@ const loginAdmin = async (req, res) => {
             username: admin.username,
             role: admin.role
         };
+        console.log("");
 
         const accessToken =
             generateAccessToken(payload);
