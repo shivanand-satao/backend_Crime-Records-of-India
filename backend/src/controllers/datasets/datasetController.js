@@ -20,6 +20,12 @@ const enforcePageSize = (rows, limit) => {
     return rows.slice(0, limit);
 };
 
+const isValidCachedPage = (responseData, limit) => (
+    responseData &&
+    Array.isArray(responseData.data) &&
+    responseData.data.length <= limit
+);
+
 const parsePagination = (query = {}) => {
     const page = Number(query.page ?? 1);
     const limit = Number(query.limit ?? 20);
@@ -169,15 +175,24 @@ const getTableData = async (req, res) => {
         const cachedResponse = await redisCache.get(cacheKey);
         if (cachedResponse) {
             console.log(`[Redis HIT] GET /api/data/${table} key=${cacheKey}`);
-            const responseData = JSON.parse(cachedResponse);
-            await pool.query(
-                `INSERT INTO views_log
-                (user_id, email, username, table_viewed, query_params, ip_address)
-                VALUES (?, ?, ?, ?, ?, ?)`,
-                [req.user.id, req.user.email || null, req.user.username, table,
-                    JSON.stringify({ page, limit }), req.ip]
-            );
-            return res.status(200).json(responseData);
+            try {
+                const responseData = JSON.parse(cachedResponse);
+                if (isValidCachedPage(responseData, limit)) {
+                    await pool.query(
+                        `INSERT INTO views_log
+                        (user_id, email, username, table_viewed, query_params, ip_address)
+                        VALUES (?, ?, ?, ?, ?, ?)`,
+                        [req.user.id, req.user.email || null, req.user.username, table,
+                            JSON.stringify({ page, limit }), req.ip]
+                    );
+                    return res.status(200).json(responseData);
+                }
+            } catch (error) {
+                console.warn(`[Redis INVALID] GET /api/data/${table} key=${cacheKey}: ${error.message}`);
+            }
+
+            console.warn(`[Redis INVALID] deleting oversized or malformed page cache key=${cacheKey}`);
+            await redisCache.del(cacheKey);
         }
 
         console.log(`[DATABASE] GET /api/data/${table} source=Supabase/PostgreSQL reason=Redis MISS key=${cacheKey}`);
@@ -253,7 +268,7 @@ const getFilterOptions = async (req, res) => {
             FROM ${tableIdentifier}
             WHERE ${columnIdentifier} IS NOT NULL
             ORDER BY ${columnIdentifier} ASC
-            limit 20
+
             `
         );
         const formattedOptions = options.map(item => item[column]);
@@ -278,7 +293,10 @@ const searchTableData = async (req, res) => {
             sortBy = null,
             sortOrder = 'ASC'
         } = req.body || {};
-        const { page, limit, offset } = parsePagination(req.body || {});
+        const { page, limit, offset } = parsePagination({
+            ...req.query,
+            ...(req.body || {})
+        });
         const schema = await getDatasetTableSchema(pool, table);
 
         if (!schema) {
@@ -317,15 +335,24 @@ const searchTableData = async (req, res) => {
         const cachedResponse = await redisCache.get(cacheKey);
         if (cachedResponse) {
             console.log(`[Redis HIT] POST /api/data/${table}/search key=${cacheKey}`);
-            const responseData = JSON.parse(cachedResponse);
-            await pool.query(
-                `INSERT INTO search_logs
-                (user_id, username, table_name, search_filters, result_count, user_ip, status)
-                VALUES (?, ?, ?, ?, ?, ?, ?)`,
-                [req.user.id, req.user.username, table, JSON.stringify(filters),
-                    responseData.data?.length || 0, req.ip, 'success']
-            );
-            return res.status(200).json(responseData);
+            try {
+                const responseData = JSON.parse(cachedResponse);
+                if (isValidCachedPage(responseData, limit)) {
+                    await pool.query(
+                        `INSERT INTO search_logs
+                        (user_id, username, table_name, search_filters, result_count, user_ip, status)
+                        VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                        [req.user.id, req.user.username, table, JSON.stringify(filters),
+                            responseData.data.length, req.ip, 'success']
+                    );
+                    return res.status(200).json(responseData);
+                }
+            } catch (error) {
+                console.warn(`[Redis INVALID] POST /api/data/${table}/search key=${cacheKey}: ${error.message}`);
+            }
+
+            console.warn(`[Redis INVALID] deleting oversized or malformed page cache key=${cacheKey}`);
+            await redisCache.del(cacheKey);
         }
 
         console.log(`[DATABASE] POST /api/data/${table}/search source=Supabase/PostgreSQL reason=Redis MISS key=${cacheKey}`);
@@ -404,6 +431,7 @@ const searchTableData = async (req, res) => {
 
 module.exports = {
     enforcePageSize,
+    isValidCachedPage,
     parsePagination,
     getAllTables,
     getTableSchema,

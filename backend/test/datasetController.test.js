@@ -2,6 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const {
     enforcePageSize,
+    isValidCachedPage,
     parsePagination
 } = require('../src/controllers/datasets/datasetController');
 
@@ -15,6 +16,17 @@ test('page-size guard prevents oversized database results from reaching Redis', 
     } finally {
         console.warn = originalWarn;
     }
+});
+
+test('oversized cached pages are rejected instead of being served', () => {
+    assert.equal(
+        isValidCachedPage({ data: Array.from({ length: 20 }) }, 20),
+        true
+    );
+    assert.equal(
+        isValidCachedPage({ data: Array.from({ length: 500 }) }, 20),
+        false
+    );
 });
 
 test('pagination starts at the first row and advances by the requested page size', () => {
