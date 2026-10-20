@@ -10,6 +10,16 @@ const {
 
 const MAX_PAGE_SIZE = 100;
 
+const enforcePageSize = (rows, limit) => {
+    if (!Array.isArray(rows)) return [];
+
+    if (rows.length > limit) {
+        console.warn(`[PAGINATION GUARD] database returned ${rows.length} rows for limit=${limit}; truncating response and cache payload`);
+    }
+
+    return rows.slice(0, limit);
+};
+
 const parsePagination = (query = {}) => {
     const page = Number(query.page ?? 1);
     const limit = Number(query.limit ?? 20);
@@ -29,7 +39,7 @@ const parsePagination = (query = {}) => {
     return {
         page,
         limit,
-        offset: 20
+        offset: (page - 1) * limit
     };
 };
 
@@ -177,10 +187,11 @@ const getTableData = async (req, res) => {
             `SELECT COUNT(*) AS total FROM ${tableIdentifier}`
         );
         const totalRecords = Number(countResult[0].total);
-        const [data] = await pool.query(
+        const [dataRows] = await pool.query(
             `SELECT * FROM ${tableIdentifier} LIMIT ? OFFSET ?`,
             [limit, offset]
         );
+        const data = enforcePageSize(dataRows, limit);
 
         await pool.query(
             `
@@ -344,7 +355,7 @@ const searchTableData = async (req, res) => {
             values
         );
         const totalRecords = Number(countResult[0].total);
-        const [data] = await pool.query(
+        const [dataRows] = await pool.query(
             `
             SELECT *
             FROM ${tableIdentifier}
@@ -354,6 +365,7 @@ const searchTableData = async (req, res) => {
             `,
             [...values, limit, offset]
         );
+        const data = enforcePageSize(dataRows, limit);
 
         await pool.query(
             `
@@ -390,6 +402,8 @@ const searchTableData = async (req, res) => {
 };
 
 module.exports = {
+    enforcePageSize,
+    parsePagination,
     getAllTables,
     getTableSchema,
     getTableData,
