@@ -253,6 +253,7 @@ const getFilterOptions = async (req, res) => {
             FROM ${tableIdentifier}
             WHERE ${columnIdentifier} IS NOT NULL
             ORDER BY ${columnIdentifier} ASC
+            limit 20
             `
         );
         const formattedOptions = options.map(item => item[column]);
