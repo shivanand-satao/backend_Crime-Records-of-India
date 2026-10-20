@@ -291,7 +291,8 @@ const searchTableData = async (req, res) => {
         const {
             filters = {},
             sortBy = null,
-            sortOrder = 'ASC'
+            sortOrder = 'ASC',
+            searchTerm = ''
         } = req.body || {};
         const { page, limit, offset } = parsePagination({
             ...req.query,
@@ -313,6 +314,18 @@ const searchTableData = async (req, res) => {
             });
         }
 
+        if (typeof searchTerm !== 'string' || searchTerm.length > 200) {
+            return res.status(400).json({
+                success: false,
+                message: 'searchTerm must be a string of at most 200 characters'
+            });
+        }
+
+        const normalizedSearchTerm = searchTerm.trim();
+        const searchLogFilters = normalizedSearchTerm
+            ? { ...filters, _searchTerm: normalizedSearchTerm }
+            : filters;
+
         if (Object.keys(filters).length > 0) {
             validateRecord(filters, 'filters');
             validateColumns(schema, filters, 'filter');
@@ -330,7 +343,14 @@ const searchTableData = async (req, res) => {
         const cacheKey = redisCache.datasetRowsKey(
             table,
             'search',
-            { filters, sortBy, sortOrder, page, limit }
+            {
+                filters,
+                searchTerm: normalizedSearchTerm,
+                sortBy,
+                sortOrder,
+                page,
+                limit
+            }
         );
         const cachedResponse = await redisCache.get(cacheKey);
         if (cachedResponse) {
@@ -342,7 +362,7 @@ const searchTableData = async (req, res) => {
                         `INSERT INTO search_logs
                         (user_id, username, table_name, search_filters, result_count, user_ip, status)
                         VALUES (?, ?, ?, ?, ?, ?, ?)`,
-                        [req.user.id, req.user.username, table, JSON.stringify(filters),
+                        [req.user.id, req.user.username, table, JSON.stringify(searchLogFilters),
                             responseData.data.length, req.ip, 'success']
                     );
                     return res.status(200).json(responseData);
@@ -370,6 +390,15 @@ const searchTableData = async (req, res) => {
                 clauses.push(`${columnIdentifier} = ?`);
                 values.push(value);
             }
+        }
+
+        if (normalizedSearchTerm) {
+            const searchClauses = schema.columns.map(column => (
+                `CAST(${pool.escapeId(column.COLUMN_NAME)} AS TEXT) ILIKE ?`
+            ));
+
+            clauses.push(`(${searchClauses.join(' OR ')})`);
+            values.push(...schema.columns.map(() => `%${normalizedSearchTerm}%`));
         }
 
         const whereSql = clauses.length > 0
@@ -405,7 +434,7 @@ const searchTableData = async (req, res) => {
                 req.user.id,
                 req.user.username,
                 table,
-                JSON.stringify(filters),
+                JSON.stringify(searchLogFilters),
                 data.length,
                 req.ip,
                 'success'
@@ -416,6 +445,7 @@ const searchTableData = async (req, res) => {
             success: true,
             table,
             filters,
+            searchTerm: normalizedSearchTerm,
             page,
             limit,
             totalRecords,
