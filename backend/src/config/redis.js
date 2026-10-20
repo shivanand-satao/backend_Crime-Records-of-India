@@ -17,5 +17,8 @@ const redisClient = redisUrl
 redisClient?.on('error', err => {
     console.error('Redis Error:', err.message);
 });
+redisClient?.on('ready', () => {
+    console.log('Redis Connected Successfully!');
+});
 
 module.exports = redisClient;
