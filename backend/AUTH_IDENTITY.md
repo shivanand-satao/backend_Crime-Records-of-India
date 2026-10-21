@@ -19,3 +19,7 @@ This change does NOT add per-request account checks to other protected routes. T
 Run `npm test` from `D:\cc\backend\backend`. The current suite has 36 passing tests, including 16 new account-identity tests using mocked database queries and test-only signing keys. New tests cover overlapping IDs, legacy/mismatched namespaces, status checks, role changes, lossless IDs, login issuance, refresh checks, allowlisted profiles, sanitized errors, and expired/tampered JWTs. No real database queries or deployed-token tests were performed.
 
 Frontend files are unchanged. Deployment, commit, and push are separate operational steps and were not performed.
+
+## Subsequent loopback integration milestone
+
+`D:\cc\backend\backend\test-support\identityServer.cjs` is an explicit test-only fixture used by `D:\cc\chatbot\test_auth_integration.py`. Ten additional tests passed with real auth routes/JWT verification and Python HTTP verification over loopback. Database module replacement happens before route imports, avoiding .env/pg initialization; account/refresh storage remains fake. The fixture is outside Node's default test discovery paths and is not imported by the application. See `D:\cc\chatbot\AUTH_INTEGRATION.md` for execution, cleanup, and outstanding real-database/deployment gates. These 10 tests are separate from the 36-test backend suite.
