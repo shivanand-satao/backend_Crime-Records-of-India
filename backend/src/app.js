@@ -4,6 +4,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
+const { createCorsOptions } = require('./config/cors');
 
 const authRoutes = require('./routes/authRoutes');
 
@@ -20,10 +21,7 @@ const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 
-app.use(cors({
-    origin: 'https://frontend-crime-records-of-india.vercel.app',
-    credentials: true
-}));
+app.use(cors(createCorsOptions()));
 app.use(helmet());
 
 app.use(morgan('dev'));
