@@ -2,6 +2,7 @@
 const bcrypt = require('bcryptjs');
 
 const pool = require('../../config/db');
+const { ADMIN_ROLES, AccountRejected, accountId, resolveActiveAccount } = require('../../services/accountIdentity');
 
 const {
     generateAccessToken,
@@ -142,15 +143,20 @@ const loginUser = async (req, res) => {
             });
         }
 
+        if (user.status !== 'active') {
+            return res.status(403).json({ success: false, message: 'Account is not active' });
+        }
+
         await pool.query(
             `UPDATE users SET last_login = NOW() WHERE id = ?`,
             [user.id]
         );
 
         const payload = {
-            id: user.id,
+            id: accountId(user.id),
             username: user.username,
-            role: 'user'
+            role: 'user',
+            account_kind: 'user'
         };
 
         const accessToken =
@@ -250,7 +256,7 @@ const loginAdmin = async (req, res) => {
             });
         }
 
-        if (admin.status && admin.status !== 'active') {
+        if (admin.status !== 'active' || !ADMIN_ROLES.has(admin.role)) {
             return res.status(403).json({
                 success: false,
                 message: 'Admin account is not active'
@@ -263,9 +269,10 @@ const loginAdmin = async (req, res) => {
         );
 
         const payload = {
-            id: admin.id,
+            id: accountId(admin.id),
             username: admin.username,
-            role: admin.role
+            role: admin.role,
+            account_kind: 'admin'
         };
         console.log("");
 
@@ -330,17 +337,18 @@ const getProfile = async (req, res) => {
 
     try {
 
+        const account = await resolveActiveAccount(req.user);
+        res.set('Cache-Control', 'no-store');
         return res.status(200).json({
             success: true,
-            user: req.user
+            user: account
         });
 
     } catch (error) {
-
-        return res.status(500).json({
-            success: false,
-            message: 'Server error'
-        });
+        if (error instanceof AccountRejected) {
+            return res.status(401).json({ success: false, message: error.message });
+        }
+        return res.status(503).json({ success: false, message: 'Identity service unavailable' });
     }
 };
 
@@ -383,10 +391,12 @@ const refreshAccessToken = async (req, res) => {
             });
         }
 
+        const account = await resolveActiveAccount(decoded);
         const payload = {
-            id: decoded.id,
-            username: decoded.username,
-            role: decoded.role
+            id: account.id,
+            username: account.username,
+            role: account.role,
+            account_kind: account.account_kind
         };
 
         const newAccessToken =
