@@ -81,6 +81,30 @@ test('upstream error details never reach browser', async t => {
     assert.deepEqual(await res.json(), { success: false, error: { code: 'chatbot_unavailable' } });
 });
 
+test('source search validates question and document selection', async t => {
+    const { request, calls } = await setup(t);
+    const post = body => request('/search', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    for (const body of [{ question: '' }, { question: 'x'.repeat(1501) }, { question: 'freedom', owner_id: 9 },
+        { question: 'freedom', document_id: true }]) assert.equal((await post(body)).status, 400);
+    assert.equal(calls.length, 0);
+    assert.equal((await post({ question: 'freedom', document_id: 1 })).status, 200);
+    assert.equal(calls[0].url.pathname, '/api/chat/search');
+    assert.equal((await request('/documents')).status, 200);
+});
+
+test('analytics requires table selection and never accepts SQL or ownership fields', async t => {
+    const { request, calls } = await setup(t);
+    const post = body => request('/ask', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    for (const body of [{ question: 'show rows' }, { question: 'show rows', table: 'crime', sql: 'select 1' },
+        { question: 'show rows', table: 'crime', owner_id: 1 }, { question: 'show rows', table: true }]) {
+        assert.equal((await post(body)).status, 400);
+    }
+    assert.equal(calls.length, 0);
+    assert.equal((await post({ question: 'show rows', table: 'crime' })).status, 200);
+    assert.equal(calls[0].url.pathname, '/api/chat/ask');
+    assert.equal((await request('/datasets')).status, 200);
+});
+
 test('per-owner process-local quota bounds upstream calls', async t => {
     const { request, calls } = await setup(t);
     for (let i = 0; i < 60; i += 1) assert.equal((await request('/status')).status, 200);

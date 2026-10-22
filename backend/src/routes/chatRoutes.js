@@ -6,6 +6,10 @@ const { AccountRejected, resolveActiveAccount } = require('../services/accountId
 const UUID = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
 const allowed = (method, path) => (
     (path === '/status' && method === 'GET')
+    || (path === '/documents' && method === 'GET')
+    || (path === '/search' && method === 'POST')
+    || (path === '/datasets' && method === 'GET')
+    || (path === '/ask' && method === 'POST')
     || (path === '/conversations' && ['GET', 'POST'].includes(method))
     || (path === '/conversations/last-active' && method === 'GET')
     || (new RegExp(`^/conversations/${UUID}$`).test(path) && ['GET', 'DELETE'].includes(method))
@@ -84,9 +88,17 @@ function createChatRouter({ env = process.env, resolveAccount = resolveActiveAcc
             inflight += 1; slot = true;
             let body;
             if (req.method === 'POST') {
+                const analyticsRequest = req.path === '/ask';
+                const searchRequest = req.path === '/search' || analyticsRequest;
+                const fields = analyticsRequest ? ['question', 'table'] : searchRequest ? ['question', 'document_id'] : ['title'];
                 if (!req.is('application/json') || !req.body || Array.isArray(req.body)
-                    || Object.keys(req.body).some(field => field !== 'title')
-                    || (req.body.title !== undefined && (typeof req.body.title !== 'string'
+                    || Object.keys(req.body).some(field => !fields.includes(field))
+                    || (searchRequest && (typeof req.body.question !== 'string'
+                        || !req.body.question.trim() || req.body.question.length > 1500
+                        || (req.body.document_id !== undefined && req.body.document_id !== null
+                            && (!Number.isSafeInteger(req.body.document_id) || req.body.document_id < 1))))
+                    || (analyticsRequest && (typeof req.body.table !== 'string' || !req.body.table || req.body.table.length > 200))
+                    || (!searchRequest && req.body.title !== undefined && (typeof req.body.title !== 'string'
                         || !req.body.title.trim() || req.body.title.length > 200))) {
                     return fail(res, 400, 'invalid_request');
                 }
