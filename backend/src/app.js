@@ -7,6 +7,7 @@ const cookieParser = require('cookie-parser');
 const { createCorsOptions } = require('./config/cors');
 
 const authRoutes = require('./routes/authRoutes');
+const { createChatRouter } = require('./routes/chatRoutes');
 
 
 const datasetRoutes = require('./routes/datasetRoutes');
@@ -24,7 +25,8 @@ const app = express();
 app.use(cors(createCorsOptions()));
 app.use(helmet());
 
-app.use(morgan('dev'));
+// Do not include chat queries or identifiers in request logs.
+app.use(morgan('dev', { skip: req => req.path === '/api/chat' || req.path.startsWith('/api/chat/') }));
 
 app.use(express.json());
 
@@ -37,6 +39,7 @@ app.use(cookieParser());
 // =========================
 
 app.use('/api/auth', authRoutes);
+app.use('/api/chat', createChatRouter());
 
 
 
